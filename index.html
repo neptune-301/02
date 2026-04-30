@@ -165,7 +165,6 @@
         .level-max { background-color: #ff9800; color: #fff; box-shadow: 0 0 10px #ff9800; }
         
         .hidden-unlocked { border: 2px solid #ff9800 !important; box-shadow: 0 0 15px rgba(255, 152, 0, 0.5); }
-        .hidden-img { filter: hue-rotate(180deg) saturate(200%); }
 
         .sys-box, .tuto-box, .challenge-box {
             background-color: var(--card-bg); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border-color);
@@ -176,7 +175,7 @@
             border-bottom: 1px solid var(--border-color);
         }
         .challenge-item:last-child { border-bottom: none; }
-        .status-badge { padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; }
+        .status-badge { padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; white-space: nowrap; }
         .status-incomplete { background-color: var(--border-color); color: var(--text-color); }
         .status-complete { background-color: var(--point-color); color: white; }
 
@@ -211,13 +210,6 @@
             <h2>⚓ 데이터 센터</h2>
             
             <div class="sys-box">
-                <h3>카드 합치기 설정</h3>
-                <p>중복 획득한 페르소나 카드의 처리 방식을 선택합니다.</p>
-                <p>현재 상태: <strong id="merge-status-text" style="color: var(--point-color);">자동 합치기 (ON)</strong></p>
-                <button class="btn" onclick="toggleAutoMerge()">설정 변경하기</button>
-            </div>
-
-            <div class="sys-box">
                 <h3>데이터 관리 (파일 세이브/로드)</h3>
                 <p>게임 데이터를 기기에 파일로 저장하거나 불러올 수 있습니다.</p>
                 <button class="btn" onclick="exportData()">⬇️ 파일로 저장하기</button>
@@ -233,7 +225,7 @@
             
             <div class="tuto-box">
                 <h3>👋 ⚓PARACOVE에 오신 것을 환영합니다!</h3>
-                <p>이곳은 요원님의 임무를 돕기 위한 시뮬레이션 시스템입니다. 아래의 규칙을 읽고 시스템을 마스터해 보세요.</p>
+                <p>이곳은 당신의 임무를 돕기 위한 시뮬레이션 시스템입니다. 아래의 규칙을 읽고 시스템을 마스터해 보세요.</p>
             </div>
 
             <div class="tuto-box">
@@ -244,7 +236,7 @@
 
             <div class="tuto-box">
                 <h3>✨ 픽업 (가챠 시스템)</h3>
-                <p>요원님을 도울 다양한 페르소나들을 영입할 수 있습니다.</p>
+                <p>당신을 도울 다양한 페르소나들을 영입할 수 있습니다.</p>
                 <ul>
                     <li><b>크레딧 픽업:</b> N(60%) / A(30%) / S(9%) / R(1%) 확률로 등장합니다. 100회 천장 시 <b>S~R등급</b>이 확정 지급됩니다!</li>
                     <li><b>플라워 픽업:</b> 고급 재화를 쓰는 만큼 확률이 높습니다! N(60%) / A(25%) / S(13%) / R(2%). 50회 천장 시 <b>R등급</b>이 확정 지급됩니다!</li>
@@ -253,14 +245,14 @@
 
             <div class="tuto-box">
                 <h3>🃏 페르소나 카드 육성과 환급</h3>
-                <p>🔹 <strong>레벨업:</strong> 이미 보유하고 있는 페르소나 카드를 중복으로 뽑게 되면, 시스템 설정(자동/수동)에 따라 카드의 <b>레벨(LV)이 상승</b>하거나 <b>여분 카드</b>로 보관됩니다.</p>
-                <p>🔹 <strong>히든 일러스트:</strong> 한 카드의 레벨이 <b>5LV</b>에 도달하면, 해당 페르소나의 숨겨진 일러스트가 해금됩니다! (인벤토리에서 확인 가능)</p>
-                <p>🔹 <strong>카드 버리기(환급):</strong> 인벤토리에서 불필요한 카드는 분해할 수 있습니다. 카드를 버리면 레벨이 1 차감되거나 여분 카드가 소모되며, 등급에 따라 크레딧(N 10C / A 50C / S 200C / R 1,000C)을 돌려받습니다.</p>
+                <p>🔹 <strong>레벨업:</strong> 이미 보유하고 있는 페르소나 카드를 중복으로 획득하면 자동으로 카드의 <b>레벨(LV)이 상승</b>합니다.</p>
+                <p>🔹 <strong>카드 버리기(환급):</strong> 인벤토리에서 불필요한 카드는 분해할 수 있습니다. 중복 카드가 여러 장 겹쳐져 있는 상태라면 버릴 개수를 선택해 한 번에 버릴 수 있으며, 등급에 따라 크레딧(N 10C / A 50C / S 200C / R 1,000C)을 돌려받습니다.</p>
             </div>
             
             <div class="tuto-box">
                 <h3>🏆 챌린지 (도전과제)</h3>
-                <p>모든 페르소나와 히든 일러스트 수집을 목표로 달려보세요! 진행 상황은 <b>[챌린지]</b> 탭에서 실시간으로 확인할 수 있습니다.</p>
+                <p>🔹 <strong>히든 일러스트:</strong> 특정 캐릭터의 모든 등급 페르소나 카드를 <b>5LV</b>까지 달성하면, 챌린지가 완료되며 <b>해당 캐릭터의 히든 일러스트가 해금</b>됩니다!</p>
+                <p>모든 페르소나 5LV 달성 및 히든 일러스트 수집을 목표로 달려보세요. 진행 상황은 <b>[챌린지]</b> 탭에서 실시간으로 확인할 수 있습니다.</p>
             </div>
         </section>
 
@@ -292,13 +284,13 @@
 
         <section id="inventory" class="page">
             <h2>🗂️ 인벤토리 & 앨범</h2>
-            <p>보유 중인 카드를 확인하고 관리합니다. (시스템 설정에 따라 중복 카드가 합쳐집니다)</p>
+            <p>보유 중인 카드를 확인하고 관리합니다. 중복 카드는 자동으로 레벨업 처리됩니다.</p>
             <div class="inventory-grid" id="inv-grid"></div>
         </section>
 
         <section id="challenge" class="page">
             <h2>🏆 챌린지 리스트</h2>
-            <p>목표를 달성하고 요원님의 수집 능력을 증명하세요!</p>
+            <p>목표를 달성하고 히든 일러스트를 해금하세요!</p>
             <div class="challenge-box" id="challenge-list-container"></div>
         </section>
     </main>
@@ -319,42 +311,98 @@
     <script>
         const characterNames = ["사인", "헤이즈", "새틴", "더지", "커프", "벡터", "드라마", "레플리카", "모이라이", "소마", "가솔린", "후크", "웨더"];
         
-        const personas = {
-            '사인': { 'N': '오피서 사인', 'A': '오퍼레이터 사인', 'S': '에이스 사인', 'R': '아드리안 리히터' },
-            '헤이즈': { 'N': '오퍼레이터 헤이즈', 'A': '닥터 헤이즈', 'S': '이레귤러 헤이즈', 'R': '발렌틴 모로조프' },
-            '새틴': { 'N': '닥터 새틴', 'A': '캡틴 새틴', 'S': '세인트 새틴', 'R': '시라사기 슈우' },
-            '더지': { 'N': '텐더 더지', 'A': '오퍼레이터 더지', 'S': '프론트맨 더지', 'R': '제라드 모런' },
-            '커프': { 'N': '카운슬러 커프', 'A': '닥터 커프', 'S': '킹 커프', 'R': '루퍼트 페레그린' },
-            '벡터': { 'N': '오퍼레이터 벡터', 'A': '스탭 벡터', 'S': '스틸 벡터', 'R': '니콜라 이바노비치' },
-            '드라마': { 'N': '텐더 드라마', 'A': '닥터 드라마', 'S': '베데트 드라마', 'R': '샤를 달리오' },
-            '레플리카': { 'N': '닥터 레플리카', 'A': '카운슬러 레플리카', 'S': '매드 레플리카', 'R': '엘리엇 세일러' },
-            '모이라이': { 'N': '닥터 모이라이', 'A': '오퍼레이터 모이라이', 'S': '하모나이저 모이라이', 'R': '윤서율' },
-            '소마': { 'N': '어시스트 소마', 'A': '텐더 소마', 'S': '루키 소마', 'R': '전성현' },
-            '가솔린': { 'N': '오퍼레이터 가솔린', 'A': '오피서 가솔린', 'S': '오니 가솔린', 'R': '엔마 시즈카' },
-            '후크': { 'N': '캡틴 후크', 'A': '텐더 후크', 'S': '염라 후크', 'R': '러진' },
-            '웨더': { 'N': '스탭 웨더', 'A': '어시스트 웨더', 'S': '썬 웨더', 'R': '캘런 레저' }
-        };
-
-        const nRankData = {
-            '사인': { img: '01_sign_n.jpg', dialogue: '비켜. 다음 공무 수행하러 가야 해.' },
-            '헤이즈': { img: '05_haze_n.jpg', dialogue: '좋아 보이네, 자기.' },
-            '새틴': { img: '09_satin_n.jpg', dialogue: '괜찮아요. 제가 있어요.' },
-            '더지': { img: '13_dirge_n.jpg', dialogue: '울어도 되지. 근데 울다 끝나면 억울하잖아.' },
-            '커프': { img: '17_cuff_n.jpg', dialogue: '선택은 네 몫이고, 나는 거래할 뿐이란다.' },
-            '벡터': { img: '21_vector_n.jpg', dialogue: '처맞아야 정신을 차리겠군.' },
-            '드라마': { img: '25_drama_n.jpg', dialogue: '모든 인간에게는 ‘드라마’가 존재하죠.' },
-            '레플리카': { img: '29_replica_n.jpg', dialogue: '새로운 건 언제나 좋은 거잖아?' },
-            '모이라이': { img: '33_moirai_n.jpg', dialogue: '어디까지 견딜 수 있나요?' },
-            '소마': { img: '37_soma_n.jpg', dialogue: '버티지 않으면, 방법은 있습니까?' },
-            '가솔린': { img: '41_gasoline_n.jpg', dialogue: '태우고 부수는 건 쉽지. 짊어지는 것보다.' },
-            '후크': { img: '45_hook_n.jpg', dialogue: '생각은 비워 둬. 심판은 내 몫이니까.' },
-            '웨더': { img: '49_weather_n.jpg', dialogue: '날씨 한번 끝내주죠?' }
-        };
-
-        const defaultDialogues = {
-            'A': "이번 작전은 내가 맡지.",
-            'S': "오래 기다렸잖아. 가자.",
-            'R': "이 세계의 진실을 마주할 준비는 되었나?"
+        const DB = {
+            '사인': {
+                'N': { name: '오피서 사인', img: '01_sign_n.jpg', dialogue: "비켜. 다음 공무 수행하러 가야 해." },
+                'A': { name: '오퍼레이터 사인', img: '02_sign_a.jpg', dialogue: "닥쳐. 제압 시작한다." },
+                'S': { name: '에이스 사인', img: '03_sign_s.jpg', dialogue: "움직이지 마. 더 다치기 싫으면." },
+                'R': { name: '아드리안 리히터', img: '04_sign_r.jpg', dialogue: "왜. 내 얼굴에 뭐 묻었어?" },
+                'hidden_img': '01_sign_h.jpg'
+            },
+            '헤이즈': {
+                'N': { name: '오퍼레이터 헤이즈', img: '05_haze_n.jpg', dialogue: "좋아 보이네, 자기." },
+                'A': { name: '닥터 헤이즈', img: '06_haze_a.jpg', dialogue: "잠깐, 달링. 금방 괜찮아지게 해 줄게." },
+                'S': { name: '이레귤러 헤이즈', img: '07_haze_s.jpg', dialogue: "기다렸어, 자기? 이제 안심해." },
+                'R': { name: '발렌틴 모로조프', img: '08_haze_r.jpg', dialogue: "아, 자기는 정말이지. 그렇게 웃으면 어떡해." },
+                'hidden_img': '05_haze_h.jpg'
+            },
+            '새틴': {
+                'N': { name: '닥터 새틴', img: '09_satin_n.jpg', dialogue: "괜찮아요. 제가 있어요." },
+                'A': { name: '캡틴 새틴', img: '10_satin_a.jpg', dialogue: "제압 개시합니다. 허락 없이 개입하지 마세요." },
+                'S': { name: '세인트 새틴', img: '11_satin_s.jpg', dialogue: "제 손을 잡으세요. 당신은 쓰러지지 않을 거예요." },
+                'R': { name: '시라사기 슈우', img: '12_satin_r.jpg', dialogue: "방금 당신이 웃는 게 아름다워서요." },
+                'hidden_img': '09_satin_h.jpg'
+            },
+            '더지': {
+                'N': { name: '텐더 더지', img: '13_dirge_n.jpg', dialogue: "울어도 되지. 근데 울다 끝나면 억울하잖아." },
+                'A': { name: '오퍼레이터 더지', img: '14_dirge_a.jpg', dialogue: "이번엔 어떤 놈 때려 부수고 오면 돼?" },
+                'S': { name: '프론트맨 더지', img: '15_dirge_s.jpg', dialogue: "뒤로 숨어도 괜찮아. 앞은 내가 맡을 테니까." },
+                'R': { name: '제라드 모런', img: '16_dirge_r.jpg', dialogue: "좋은 날엔 웃는 거야, 바보야." },
+                'hidden_img': '13_dirge_h.jpg'
+            },
+            '커프': {
+                'N': { name: '카운슬러 커프', img: '17_cuff_n.jpg', dialogue: "선택은 네 몫이고, 나는 거래할 뿐이란다." },
+                'A': { name: '닥터 커프', img: '18_cuff_a.jpg', dialogue: "끝까지 해 보자꾸나." },
+                'S': { name: '킹 커프', img: '19_cuff_s.jpg', dialogue: "나를 만나다니 운이 좋구나." },
+                'R': { name: '루퍼트 페레그린', img: '20_cuff_r.jpg', dialogue: "옳지. …그래, 좋다는 의미란다." },
+                'hidden_img': '17_cuff_h.jpg'
+            },
+            '벡터': {
+                'N': { name: '오퍼레이터 벡터', img: '21_vector_n.jpg', dialogue: "처맞아야 정신을 차리겠군." },
+                'A': { name: '스탭 벡터', img: '22_vector_a.jpg', dialogue: "알았어. 또 뭘 하면 되는데." },
+                'S': { name: '스틸 벡터', img: '23_vector_s.jpg', dialogue: "입 다물고 얌전히 업혀." },
+                'R': { name: '니콜라 이바노비치', img: '24_vector_r.jpg', dialogue: "뭘 그렇게 쳐다봐. 좋냐." },
+                'hidden_img': '21_vector_h.jpg'
+            },
+            '드라마': {
+                'N': { name: '텐더 드라마', img: '25_drama_n.jpg', dialogue: "모든 인간에게는 ‘드라마’가 존재하죠." },
+                'A': { name: '닥터 드라마', img: '26_drama_a.jpg', dialogue: "그 고통은 곧 가라앉을 거예요." },
+                'S': { name: '베데트 드라마', img: '27_drama_s.jpg', dialogue: "그렇게 넋 놓고 보지 않아도 괜찮아요, 후후." },
+                'R': { name: '샤를 달리오', img: '28_drama_r.jpg', dialogue: "그렇게 바라봐 주니 나는 바보가 되어 버리는군요." },
+                'hidden_img': '25_drama_h.jpg'
+            },
+            '레플리카': {
+                'N': { name: '닥터 레플리카', img: '29_replica_n.jpg', dialogue: "새로운 건 언제나 좋은 거잖아?" },
+                'A': { name: '카운슬러 레플리카', img: '30_replica_a.jpg', dialogue: "좋아. 다음엔 뭘 결재하면 되지? 가져와!" },
+                'S': { name: '매드 레플리카', img: '31_replica_s.jpg', dialogue: "너는 아무것도 걱정하지 않아도 돼! 응, 응." },
+                'R': { name: '엘리엇 세일러', img: '32_replica_r.jpg', dialogue: "말도 안 되게 완벽한 순간이야!" },
+                'hidden_img': '29_replica_h.jpg'
+            },
+            '모이라이': {
+                'N': { name: '닥터 모이라이', img: '33_moirai_n.jpg', dialogue: "어디까지 견딜 수 있나요?" },
+                'A': { name: '오퍼레이터 모이라이', img: '34_moirai_a.jpg', dialogue: "이 이상의 저항은 무의미합니다." },
+                'S': { name: '하모나이저 모이라이', img: '35_moirai_s.jpg', dialogue: "자, 차분히. 호흡하는 것을 잊지 마세요." },
+                'R': { name: '윤서율', img: '36_moirai_r.jpg', dialogue: "이런, 당신 덕에 바보처럼 웃어 버렸네요." },
+                'hidden_img': '33_moirai_h.jpg'
+            },
+            '소마': {
+                'N': { name: '어시스트 소마', img: '37_soma_n.jpg', dialogue: "버티지 않으면, 방법은 있습니까?" },
+                'A': { name: '트레이니 소마', img: '38_soma_a.jpg', dialogue: "쓸데없이 시간 끌지 마시죠." },
+                'S': { name: '루키 소마', img: '39_soma_s.jpg', dialogue: "기다리십시오. 신속히 정리하겠습니다." },
+                'R': { name: '전성현', img: '40_soma_r.jpg', dialogue: "…제가 당신을 너무 빤히 봤습니까?" },
+                'hidden_img': '37_soma_h.jpg'
+            },
+            '가솔린': {
+                'N': { name: '오퍼레이터 가솔린', img: '41_gasoline_n.jpg', dialogue: "태우고 부수는 건 쉽지. 짊어지는 것보다." },
+                'A': { name: '오피서 가솔린', img: '42_gasoline_a.jpg', dialogue: "아, 아. 알았다고, 지금 간다니까." },
+                'S': { name: '오니 가솔린', img: '43_gasoline_s.jpg', dialogue: "어이, 누구 맘대로 뒈지려고." },
+                'R': { name: '엔마 시즈카', img: '44_gasoline_r.jpg', dialogue: "네가 부서질까 봐 무서워서 그런다, 왜." },
+                'hidden_img': '41_gasoline_h.jpg'
+            },
+            '후크': {
+                'N': { name: '캡틴 후크', img: '45_hook_n.jpg', dialogue: "생각은 비워 둬. 심판은 내 몫이니까." },
+                'A': { name: '텐더 후크', img: '46_hook_a.jpg', dialogue: "그래, 대화로 해결해 보자고." },
+                'S': { name: '염라 후크', img: '47_hook_s.jpg', dialogue: "등 뒤에서 잠자코 ‘지옥’을 구경하도록 해." },
+                'R': { name: '러진', img: '48_hook_r.jpg', dialogue: "깜찍하게 굴기는. 겁도 없나." },
+                'hidden_img': '45_hook_h.jpg'
+            },
+            '웨더': {
+                'N': { name: '스탭 웨더', img: '49_weather_n.jpg', dialogue: "날씨 한번 끝내주죠?" },
+                'A': { name: '어시스트 웨더', img: '50_weather_a.jpg', dialogue: "네, 네. 가요, 가. 체크도 했다고요." },
+                'S': { name: '썬 웨더', img: '51_weather_s.jpg', dialogue: "구출 한 번에 뽀뽀 한 번, 어때요? 저렴하죠." },
+                'R': { name: '캘런 레저', img: '52_weather_r.jpg', dialogue: "왜 이렇게 나 설레게 해요. 작정했지." },
+                'hidden_img': '49_weather_h.jpg'
+            }
         };
 
         const creditRates = [{ rank: 'R', prob: 0.01 }, { rank: 'S', prob: 0.10 }, { rank: 'A', prob: 0.40 }, { rank: 'N', prob: 1.00 }];
@@ -367,8 +415,7 @@
             inventory: {},
             theme: 'light',
             creditPulls: 0,
-            flowerPulls: 0,
-            autoMerge: true
+            flowerPulls: 0
         };
 
         let gameState = JSON.parse(JSON.stringify(defaultState));
@@ -380,10 +427,6 @@
                 let parsed = JSON.parse(savedData);
                 if(Array.isArray(parsed.inventory)) parsed.inventory = {};
                 gameState = { ...defaultState, ...parsed };
-                if(gameState.autoMerge === undefined) gameState.autoMerge = true;
-                for(let key in gameState.inventory) {
-                    if(gameState.inventory[key].duplicates === undefined) gameState.inventory[key].duplicates = 0;
-                }
             }
             
             setInterval(() => {
@@ -421,10 +464,6 @@
                     const loadedData = JSON.parse(e.target.result);
                     if(Array.isArray(loadedData.inventory)) loadedData.inventory = {};
                     gameState = { ...defaultState, ...loadedData };
-                    if(gameState.autoMerge === undefined) gameState.autoMerge = true;
-                    for(let key in gameState.inventory) {
-                        if(gameState.inventory[key].duplicates === undefined) gameState.inventory[key].duplicates = 0;
-                    }
                     autoSave(); applyTheme(); updateUI();
                     if (document.getElementById('inventory').classList.contains('active')) renderInventory();
                     if (document.getElementById('challenge').classList.contains('active')) renderChallenges();
@@ -451,27 +490,10 @@
             document.getElementById('credit-pity-fill').style.width = `${(gameState.creditPulls / 100) * 100}%`;
             document.getElementById('flower-pity-text').innerText = 50 - gameState.flowerPulls;
             document.getElementById('flower-pity-fill').style.width = `${(gameState.flowerPulls / 50) * 100}%`;
-            document.getElementById('merge-status-text').innerText = gameState.autoMerge ? '자동 합치기 (ON)' : '수동 합치기 (OFF)';
         }
 
         function toggleTheme() { gameState.theme = gameState.theme === 'light' ? 'dark' : 'light'; applyTheme(); autoSave(); }
         function applyTheme() { document.body.setAttribute('data-theme', gameState.theme); }
-
-        function toggleAutoMerge() {
-            gameState.autoMerge = !gameState.autoMerge;
-            if (gameState.autoMerge) {
-                for (let key in gameState.inventory) {
-                    let card = gameState.inventory[key];
-                    if (card.duplicates > 0) {
-                        card.level += card.duplicates;
-                        card.duplicates = 0;
-                    }
-                }
-            }
-            updateUI();
-            autoSave();
-            renderInventory();
-        }
 
         function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -507,30 +529,15 @@
 
         function generateCardData(rank) {
             const charName = characterNames[Math.floor(Math.random() * characterNames.length)];
-            const personaName = personas[charName][rank];
-            let imgUrl = "", cardDialogue = "";
-
-            if (rank === 'N') {
-                imgUrl = `./images/${nRankData[charName].img}`; 
-                cardDialogue = nRankData[charName].dialogue;
-            } else {
-                const charId = characterNames.indexOf(charName) + 1; 
-                imgUrl = `https://picsum.photos/seed/paracove${charId}${rank}/400/600`;
-                cardDialogue = defaultDialogues[rank];
-            }
-
-            return { name: personaName, char: charName, rank: rank, img: imgUrl, dialogue: cardDialogue };
+            const dbChar = DB[charName][rank];
+            return { name: dbChar.name, char: charName, rank: rank, img: `./images/${dbChar.img}`, dialogue: dbChar.dialogue };
         }
 
         function addCardToInventory(cardData) {
             if(gameState.inventory[cardData.name]) {
-                if(gameState.autoMerge) {
-                    gameState.inventory[cardData.name].level += 1;
-                } else {
-                    gameState.inventory[cardData.name].duplicates += 1;
-                }
+                gameState.inventory[cardData.name].level += 1;
             } else {
-                gameState.inventory[cardData.name] = { ...cardData, level: 1, duplicates: 0, showHidden: false };
+                gameState.inventory[cardData.name] = { ...cardData, level: 1 };
             }
         }
 
@@ -616,12 +623,15 @@
             if(!card) return;
             const modalImg = document.getElementById('modal-img');
             modalImg.src = card.img;
-            if (card.showHidden) {
-                modalImg.classList.add('hidden-img');
-            } else {
-                modalImg.classList.remove('hidden-img');
-            }
             document.getElementById('modal-dialogue').innerText = `"${card.dialogue}"`;
+            document.getElementById('image-modal').style.display = 'flex';
+        }
+
+        function viewHidden(charName) {
+            const hiddenImg = `./images/${DB[charName].hidden_img}`;
+            document.getElementById('modal-img').src = hiddenImg;
+            document.getElementById('modal-img').className = 'fs-image';
+            document.getElementById('modal-dialogue').innerText = `[${charName} 히든 일러스트 해금 완료]`;
             document.getElementById('image-modal').style.display = 'flex';
         }
 
@@ -629,55 +639,40 @@
             document.getElementById('image-modal').style.display = 'none';
         }
 
-        function mergeCard(personaName) {
-            let card = gameState.inventory[personaName];
-            if (card && card.duplicates > 0) {
-                card.level += 1;
-                card.duplicates -= 1;
-                updateUI();
-                autoSave();
-                renderInventory();
-            }
-        }
-
         function discardCard(personaName) {
             const card = gameState.inventory[personaName];
             if(!card) return;
             
-            const refund = refundRates[card.rank];
-            let msg = `[${card.name}] 카드를 버리시겠습니까?\n크레딧 ${refund}C를 환급받습니다.\n`;
-            
-            if(card.duplicates > 0) {
-                msg += `(보유 중인 여분 카드가 1장 소모됩니다.)`;
-            } else {
-                msg += `(현재 LV: ${card.level} ➔ ${card.level - 1})`;
+            let amountToDiscard = 1;
+
+            if (card.level > 1) {
+                let input = prompt(`[${card.name}] 카드의 현재 레벨은 ${card.level}LV 입니다.\n몇 장을 버리시겠습니까? (최대 ${card.level}장)`);
+                if (input === null) return;
+                amountToDiscard = parseInt(input, 10);
+                
+                if (isNaN(amountToDiscard) || amountToDiscard < 1 || amountToDiscard > card.level) {
+                    alert('올바른 수량을 입력해 주세요.');
+                    return;
+                }
             }
 
-            if(confirm(msg)) {
-                if(card.duplicates > 0) {
-                    card.duplicates -= 1;
-                } else {
-                    card.level -= 1;
-                }
+            const refund = refundRates[card.rank] * amountToDiscard;
+            let confirmMsg = `[${card.name}] 카드 ${amountToDiscard}장을 버리시겠습니까?\n크레딧 ${refund}C를 환급받습니다.\n(현재 LV: ${card.level} ➔ ${card.level - amountToDiscard})`;
+            
+            if (amountToDiscard === card.level) {
+                confirmMsg = `[${card.name}] 카드 ${amountToDiscard}장을 버리시겠습니까?\n크레딧 ${refund}C를 환급받습니다.\n(카드가 모두 삭제됩니다)`;
+            }
+
+            if(confirm(confirmMsg)) {
+                card.level -= amountToDiscard;
                 gameState.credits += refund;
                 
-                if(card.level === 0 && card.duplicates === 0) { 
+                if(card.level <= 0) { 
                     delete gameState.inventory[personaName]; 
-                }
-                else if(card.level < 5) { 
-                    card.showHidden = false; 
                 }
                 
                 updateUI(); autoSave(); renderInventory();
-            }
-        }
-
-        function toggleHidden(personaName) {
-            const card = gameState.inventory[personaName];
-            if(card && card.level >= 5) {
-                card.showHidden = !card.showHidden;
-                renderInventory();
-                autoSave();
+                if (document.getElementById('challenge').classList.contains('active')) renderChallenges();
             }
         }
 
@@ -694,26 +689,15 @@
             invenList.forEach(card => {
                 const isMax = card.level >= 5;
                 const cardDiv = document.createElement('div');
-                cardDiv.className = `inv-card ${isMax ? 'hidden-unlocked' : ''}`;
+                cardDiv.className = 'inv-card';
+                if (isMax) cardDiv.classList.add('hidden-unlocked');
                 
-                const imgClass = `rank-${card.rank} ${card.showHidden ? 'hidden-img' : ''}`;
+                const imgClass = `rank-${card.rank}`;
                 const badgeClass = `level-badge ${isMax ? 'level-max' : ''}`;
-                let badgeText = isMax ? `LV. ${card.level} (히든 해금!)` : `LV. ${card.level}`;
-                
-                if(!gameState.autoMerge && card.duplicates > 0) {
-                    badgeText += ` +${card.duplicates}`;
-                }
+                const badgeText = isMax ? `LV. ${card.level} (MAX)` : `LV. ${card.level}`;
 
                 let buttonsHtml = `<button class="btn btn-small" style="width:100%; margin: 5px 0 0 0;" onclick="openImageModal('${card.name}')">크게 보기 🔍</button>`;
-                
-                if(!gameState.autoMerge && card.duplicates > 0) {
-                    buttonsHtml += `<button class="btn btn-small btn-flower" style="width:100%; margin: 5px 0 0 0;" onclick="mergeCard('${card.name}')">합치기 (여분: ${card.duplicates})</button>`;
-                }
-
-                if(isMax) {
-                    buttonsHtml += `<button class="btn btn-small" style="width:100%; margin: 5px 0 0 0;" onclick="toggleHidden('${card.name}')">${card.showHidden ? '기본 보기' : '히든 보기 🔓'}</button>`;
-                }
-                buttonsHtml += `<button class="btn btn-small btn-danger" style="width:100%; margin: 5px 0 0 0;" onclick="discardCard('${card.name}')">카드 버리기 (+${refundRates[card.rank]}C)</button>`;
+                buttonsHtml += `<button class="btn btn-small btn-danger" style="width:100%; margin: 5px 0 0 0;" onclick="discardCard('${card.name}')">카드 버리기</button>`;
 
                 cardDiv.innerHTML = `
                     <div class="${badgeClass}">${badgeText}</div>
@@ -730,14 +714,17 @@
             const allOwned = Object.values(gameState.inventory);
             
             if (type === 'all_personas') {
-                return allOwned.length === 52; 
+                return allOwned.length === 52 && allOwned.every(c => c.level >= 5);
             } 
             else if (type === 'all_hidden') {
-                const hiddenCount = allOwned.filter(c => c.level >= 5).length;
-                return hiddenCount === 52; 
+                let completeCount = 0;
+                characterNames.forEach(char => {
+                    if (checkChallengeComplete('char_personas', char)) completeCount++;
+                });
+                return completeCount === 13;
             }
             else if (type === 'char_personas' && targetChar) {
-                const charCards = allOwned.filter(c => c.char === targetChar);
+                const charCards = allOwned.filter(c => c.char === targetChar && c.level >= 5);
                 return charCards.length === 4; 
             }
             return false;
@@ -748,12 +735,12 @@
             container.innerHTML = '';
 
             const challengeList = [
-                { title: "모든 캐릭터의 모든 페르소나 카드 수집 완료", type: 'all_personas' },
-                { title: "모든 캐릭터의 모든 히든 일러스트 수집 완료", type: 'all_hidden' },
+                { title: "모든 캐릭터의 모든 페르소나 5LV 달성 완료", type: 'all_personas' },
+                { title: "모든 캐릭터의 히든 일러스트 해금 완료", type: 'all_hidden' },
             ];
 
             characterNames.forEach(char => {
-                challengeList.push({ title: `${char}의 모든 페르소나 카드 수집 완료`, type: 'char_personas', target: char });
+                challengeList.push({ title: `${char}의 모든 페르소나 카드 5LV짜리 수집 완료`, type: 'char_personas', target: char });
             });
 
             challengeList.forEach(ch => {
@@ -762,9 +749,14 @@
                     ? `<span class="status-badge status-complete">완료</span>` 
                     : `<span class="status-badge status-incomplete">미완료</span>`;
 
+                let extraBtn = '';
+                if (ch.type === 'char_personas' && isComplete) {
+                    extraBtn = `<button class="btn btn-small btn-flower" style="margin:0 10px;" onclick="viewHidden('${ch.target}')">히든 보기 🔓</button>`;
+                }
+
                 const chDiv = document.createElement('div');
                 chDiv.className = 'challenge-item';
-                chDiv.innerHTML = `<span>${ch.title}</span> ${statusHtml}`;
+                chDiv.innerHTML = `<span>${ch.title}</span> <div style="display:flex; align-items:center;">${extraBtn}${statusHtml}</div>`;
                 container.appendChild(chDiv);
             });
         }
