@@ -55,6 +55,8 @@
 
         .resources .credit { color: var(--point-color); }
         .resources .flower { color: #e91e63; }
+        
+        .timer-text { font-size: 12px; color: #888; margin-top: 5px; }
 
         nav {
             display: flex;
@@ -179,10 +181,9 @@
 
         h2 { border-bottom: 2px solid var(--point-color); padding-bottom: 10px; display: inline-block; }
         
-        /* 엠바고 공지 디자인 개선 */
         .notice-box {
-            background-color: rgba(233, 30, 99, 0.1); /* 연한 핑크/빨강 배경 */
-            border-left: 5px solid #e91e63; /* 왼쪽 포인트 선 */
+            background-color: rgba(233, 30, 99, 0.1);
+            border-left: 5px solid #e91e63;
             color: var(--text-color);
             padding: 15px 20px; 
             border-radius: 4px; 
@@ -204,6 +205,17 @@
         [data-theme="dark"] .notice-box {
             background-color: rgba(233, 30, 99, 0.15);
         }
+        
+        .coupon-input {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 16px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin-right: 10px;
+            width: 200px;
+        }
     </style>
 </head>
 <body>
@@ -213,11 +225,14 @@
             <strong>⚓PARACOVE</strong>
             <button class="btn btn-small" style="margin-left:10px;" onclick="toggleTheme()">다크모드 전환</button>
         </div>
-        <div class="resources">
-            <span class="credit">크레딧: <span id="credit-val">0</span>C</span>
-            <span class="flower">플라워: <span id="flower-val">0</span>F</span>
-            <button class="btn btn-small btn-flower" onclick="exchangeFlower()">플라워 환전(1,000C ➔ 10F)</button>
-            <button class="btn btn-small" onclick="cheatCredit()">+ 테스트 재화</button>
+        <div>
+            <div class="resources">
+                <span class="credit">크레딧: <span id="credit-val">0</span>C</span>
+                <span class="flower">플라워: <span id="flower-val">0</span>F</span>
+                <button class="btn btn-small btn-flower" onclick="exchangeFlower()">플라워 환전(1,000C ➔ 10F)</button>
+                <button class="btn btn-small" onclick="cheatCredit()">+ 테스트 재화</button>
+            </div>
+            <div class="timer-text" id="timer-display">다음 크레딧 충전까지: 10:00</div>
         </div>
     </header>
 
@@ -232,6 +247,15 @@
     <main>
         <section id="intro" class="page active">
             <h2>⚓ 데이터 센터</h2>
+
+            <div class="sys-box">
+                <h3>쿠폰 코드 입력</h3>
+                <p>배포된 쿠폰 코드를 입력하여 재화를 획득할 수 있습니다. (계정당 1회 한정)</p>
+                <div style="display: flex; align-items: center;">
+                    <input type="text" id="coupon-input" class="coupon-input" placeholder="코드를 입력하세요">
+                    <button class="btn" style="margin: 0;" onclick="useCoupon()">코드 확인</button>
+                </div>
+            </div>
 
             <div class="sys-box">
                 <h3>데이터 관리 (파일 세이브/로드)</h3>
@@ -438,6 +462,7 @@
         const creditRates = [{ rank: 'R', prob: 0.01 }, { rank: 'S', prob: 0.10 }, { rank: 'A', prob: 0.40 }, { rank: 'N', prob: 1.00 }];
         const flowerRates = [{ rank: 'R', prob: 0.02 }, { rank: 'S', prob: 0.15 }, { rank: 'A', prob: 0.40 }, { rank: 'N', prob: 1.00 }];
         const refundRates = { 'N': 10, 'A': 50, 'S': 200, 'R': 1000 };
+        const CHARGE_INTERVAL = 600000; 
 
         const defaultState = {
             credits: 3000,
@@ -445,11 +470,14 @@
             inventory: {},
             theme: 'light',
             creditPulls: 0,
-            flowerPulls: 0
+            flowerPulls: 0,
+            lastChargeTime: Date.now(),
+            usedCoupons: [] 
         };
 
         let gameState = JSON.parse(JSON.stringify(defaultState));
         let skipAnimation = false;
+        let timerInterval;
 
         function init() {
             const savedData = localStorage.getItem('paracoveSaveData');
@@ -457,17 +485,48 @@
                 let parsed = JSON.parse(savedData);
                 if(Array.isArray(parsed.inventory)) parsed.inventory = {};
                 gameState = { ...defaultState, ...parsed };
+                if (!gameState.usedCoupons) gameState.usedCoupons = [];
+                if (!gameState.lastChargeTime) gameState.lastChargeTime = Date.now();
+            } else {
+                gameState.lastChargeTime = Date.now();
             }
             
-            setInterval(() => {
-                gameState.credits += 100;
-                autoSave();
-                updateUI();
-            }, 600000); 
-
+            checkOfflineCharge();
+            startTimer();
             applyTheme();
             updateUI();
             renderChallenges();
+        }
+
+        function checkOfflineCharge() {
+            const now = Date.now();
+            const elapsed = now - gameState.lastChargeTime;
+            if (elapsed >= CHARGE_INTERVAL) {
+                const chargeCount = Math.floor(elapsed / CHARGE_INTERVAL);
+                gameState.credits += chargeCount * 100;
+                gameState.lastChargeTime += chargeCount * CHARGE_INTERVAL;
+                autoSave();
+            }
+        }
+
+        function startTimer() {
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                const now = Date.now();
+                const elapsed = now - gameState.lastChargeTime;
+                
+                if (elapsed >= CHARGE_INTERVAL) {
+                    gameState.credits += 100;
+                    gameState.lastChargeTime = now;
+                    updateUI();
+                    autoSave();
+                } else {
+                    const remain = CHARGE_INTERVAL - elapsed;
+                    const minutes = Math.floor(remain / 60000);
+                    const seconds = Math.floor((remain % 60000) / 1000);
+                    document.getElementById('timer-display').innerText = `다음 크레딧 충전까지: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
         }
 
         function autoSave() { localStorage.setItem('paracoveSaveData', JSON.stringify(gameState)); }
@@ -494,6 +553,8 @@
                     const loadedData = JSON.parse(e.target.result);
                     if(Array.isArray(loadedData.inventory)) loadedData.inventory = {};
                     gameState = { ...defaultState, ...loadedData };
+                    if (!gameState.usedCoupons) gameState.usedCoupons = [];
+                    if (!gameState.lastChargeTime) gameState.lastChargeTime = Date.now();
                     autoSave(); applyTheme(); updateUI();
                     if (document.getElementById('inventory').classList.contains('active')) renderInventory();
                     if (document.getElementById('challenge').classList.contains('active')) renderChallenges();
@@ -508,6 +569,7 @@
             if(confirm('모든 진행 상황과 카드가 삭제됩니다. 정말 초기화하시겠습니까?')) {
                 localStorage.removeItem('paracoveSaveData');
                 gameState = JSON.parse(JSON.stringify(defaultState));
+                gameState.lastChargeTime = Date.now();
                 applyTheme(); updateUI();
                 alert('초기화되었습니다.');
             }
@@ -533,6 +595,67 @@
             
             if(pageId === 'inventory') renderInventory();
             if(pageId === 'challenge') renderChallenges();
+        }
+
+        async function useCoupon() {
+            const inputEl = document.getElementById('coupon-input');
+            const code = inputEl.value.trim().toLowerCase(); 
+            
+            if (!code) {
+                alert('쿠폰 코드를 입력해 주세요.');
+                return;
+            }
+
+            if (gameState.usedCoupons.includes(code)) {
+                alert('이미 사용된 쿠폰입니다.');
+                inputEl.value = '';
+                return;
+            }
+
+            try {
+                const response = await fetch('coupon.txt');
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const text = await response.text();
+                const lines = text.split('\n');
+                let reward = null;
+
+                for (let line of lines) {
+                    const parts = line.split(' / ');
+                    if (parts.length === 2 && parts[0].trim().toLowerCase() === code) {
+                        const rewardStr = parts[1].trim();
+                        reward = { credits: 0, flowers: 0 };
+                        if (rewardStr.endsWith('C')) {
+                            reward.credits = parseInt(rewardStr.replace('C', ''), 10);
+                        } else if (rewardStr.endsWith('F')) {
+                            reward.flowers = parseInt(rewardStr.replace('F', ''), 10);
+                        }
+                        break;
+                    }
+                }
+
+                if (reward) {
+                    gameState.credits += reward.credits || 0;
+                    gameState.flowers += reward.flowers || 0;
+                    gameState.usedCoupons.push(code);
+                    
+                    let msg = '쿠폰이 성공적으로 적용되었습니다!\n';
+                    if(reward.credits) msg += `크레딧: +${reward.credits}\n`;
+                    if(reward.flowers) msg += `플라워: +${reward.flowers}`;
+                    
+                    alert(msg);
+                    updateUI();
+                    autoSave();
+                } else {
+                    alert('유효하지 않거나 만료된 쿠폰입니다.');
+                }
+            } catch (error) {
+                console.error("Failed to load coupon file:", error);
+                alert("쿠폰 정보를 불러오는 데 실패했습니다.");
+            }
+            
+            inputEl.value = '';
         }
 
         function cheatCredit() { 
@@ -744,7 +867,6 @@
             if (type === 'all_personas') {
                 let totalCardsProgress = 0;
                 allOwned.forEach(c => {
-                    // 최대 5장까지만 진행도에 반영되도록 제한
                     totalCardsProgress += Math.min(c.level, 5); 
                 });
                 const isComplete = totalCardsProgress === 260; // 52 * 5
@@ -762,7 +884,6 @@
                 const charCards = allOwned.filter(c => c.char === targetChar);
                 let charCardsProgress = 0;
                 charCards.forEach(c => {
-                    // 특정 캐릭터 카드의 진행도 역시 각 카드별 최대 5장까지만 반영되도록 제한
                     charCardsProgress += Math.min(c.level, 5);
                 });
                 const isComplete = charCardsProgress === 20; // 4 * 5
