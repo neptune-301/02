@@ -162,10 +162,7 @@
             position: absolute; top: 10px; left: 10px; background-color: rgba(0,0,0,0.8); color: white;
             padding: 3px 8px; border-radius: 15px; font-size: 12px; font-weight: bold; z-index: 2;
         }
-        .level-max { background-color: #ff9800; color: #fff; box-shadow: 0 0 10px #ff9800; }
         
-        .hidden-unlocked { border: 2px solid #ff9800 !important; box-shadow: 0 0 15px rgba(255, 152, 0, 0.5); }
-
         .sys-box, .tuto-box, .challenge-box {
             background-color: var(--card-bg); padding: 20px; border-radius: 10px; margin-bottom: 20px; border: 1px solid var(--border-color);
         }
@@ -178,8 +175,17 @@
         .status-badge { padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; white-space: nowrap; }
         .status-incomplete { background-color: var(--border-color); color: var(--text-color); }
         .status-complete { background-color: var(--point-color); color: white; }
+        .progress-text { font-size: 14px; color: var(--point-color); margin-right: 10px; font-weight: bold; }
 
         h2 { border-bottom: 2px solid var(--point-color); padding-bottom: 10px; display: inline-block; }
+        
+        .notice-box {
+            background-color: #fff3e0; color: #e65100; border: 2px solid #ff9800;
+            padding: 15px; border-radius: 8px; margin-bottom: 20px; font-weight: bold;
+        }
+        [data-theme="dark"] .notice-box {
+            background-color: #3e2723; color: #ffb74d; border-color: #ff9800;
+        }
     </style>
 </head>
 <body>
@@ -222,6 +228,12 @@
 
         <section id="tutorial" class="page">
             <h2>📖 튜토리얼 가이드</h2>
+            
+            <div class="notice-box">
+                ⚠️ [필독] 엠바고 및 에셋 업로드 관련 주의사항<br><br>
+                본 콘텐츠는 에셋 감상이 주 목적인 시뮬레이터입니다. 원활한 즐거움을 위해 <b>2026년 5월 7일</b>까지 1주일간 엠바고 기간을 가집니다.<br>
+                해당 기간 동안에는 SNS 등에 원본 에셋(일러스트) 캡처 및 재업로드를 지양해 주시길 부탁드립니다. 불가피하게 업로드하실 경우, 크롭하여 이미지의 일부분만 올려 주시면 감사하겠습니다.
+            </div>
             
             <div class="tuto-box">
                 <h3>👋 ⚓PARACOVE에 오신 것을 환영합니다!</h3>
@@ -284,7 +296,7 @@
 
         <section id="inventory" class="page">
             <h2>🗂️ 인벤토리 & 앨범</h2>
-            <p>보유 중인 카드를 확인하고 관리합니다. 중복 카드는 자동으로 레벨업 처리됩니다.</p>
+            <p>보유 중인 카드를 확인하고 관리합니다. 중복 카드는 자동으로 겹쳐집니다.</p>
             <div class="inventory-grid" id="inv-grid"></div>
         </section>
 
@@ -712,20 +724,31 @@
             const allOwned = Object.values(gameState.inventory);
             
             if (type === 'all_personas') {
-                return allOwned.length === 52 && allOwned.every(c => c.level >= 5);
+                let totalCardsProgress = 0;
+                allOwned.forEach(c => {
+                    totalCardsProgress += Math.min(c.level, 5);
+                });
+                const isComplete = totalCardsProgress === 260; // 52 * 5
+                return { isComplete, progressText: `(${totalCardsProgress}/260)` };
             } 
             else if (type === 'all_hidden') {
                 let completeCount = 0;
                 characterNames.forEach(char => {
-                    if (checkChallengeComplete('char_personas', char)) completeCount++;
+                    if (checkChallengeComplete('char_personas', char).isComplete) completeCount++;
                 });
-                return completeCount === 13;
+                const isComplete = completeCount === 13;
+                return { isComplete, progressText: `(${completeCount}/13)` };
             }
             else if (type === 'char_personas' && targetChar) {
-                const charCards = allOwned.filter(c => c.char === targetChar && c.level >= 5);
-                return charCards.length === 4; 
+                const charCards = allOwned.filter(c => c.char === targetChar);
+                let charCardsProgress = 0;
+                charCards.forEach(c => {
+                    charCardsProgress += Math.min(c.level, 5);
+                });
+                const isComplete = charCardsProgress === 20; // 4 * 5
+                return { isComplete, progressText: `(${charCardsProgress}/20)` };
             }
-            return false;
+            return { isComplete: false, progressText: '' };
         }
 
         function renderChallenges() {
@@ -742,19 +765,19 @@
             });
 
             challengeList.forEach(ch => {
-                const isComplete = checkChallengeComplete(ch.type, ch.target);
-                const statusHtml = isComplete 
+                const result = checkChallengeComplete(ch.type, ch.target);
+                const statusHtml = result.isComplete 
                     ? `<span class="status-badge status-complete">완료</span>` 
                     : `<span class="status-badge status-incomplete">미완료</span>`;
 
                 let extraBtn = '';
-                if (ch.type === 'char_personas' && isComplete) {
+                if (ch.type === 'char_personas' && result.isComplete) {
                     extraBtn = `<button class="btn btn-small btn-flower" style="margin:0 10px;" onclick="viewHidden('${ch.target}')">히든 보기 🔓</button>`;
                 }
 
                 const chDiv = document.createElement('div');
                 chDiv.className = 'challenge-item';
-                chDiv.innerHTML = `<span>${ch.title}</span> <div style="display:flex; align-items:center;">${extraBtn}${statusHtml}</div>`;
+                chDiv.innerHTML = `<span>${ch.title}</span> <div style="display:flex; align-items:center;"><span class="progress-text">${result.progressText}</span>${extraBtn}${statusHtml}</div>`;
                 container.appendChild(chDiv);
             });
         }
