@@ -3,3 +3,4 @@ welcomecove / 2000C
 lovecove / 500F
 morningcove / 5000C
 mayluvcove / 900F
+niceweather / 1300F
