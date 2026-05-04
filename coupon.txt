@@ -6,3 +6,4 @@ mayluvcove / 900F
 niceweather / 1300F
 happydaycove / 700F
 goodnightcove / 900F
+luckyspring / 5000C
