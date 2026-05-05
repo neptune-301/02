@@ -909,14 +909,24 @@
 
         function checkChallengeComplete(type, targetChar = null) {
             const allOwned = Object.values(gameState.inventory);
-            const season1Cards = allOwned.filter(c => c.no >= 1 && c.no <= 52);
+            
+            // 기존 세이브 데이터에 no 값이 없는 경우 DB를 조회해 복원
+            const enrichedOwned = allOwned.map(c => {
+                if (c.no === undefined && DB[c.char] && DB[c.char][c.rank]) {
+                    c.no = DB[c.char][c.rank].no;
+                }
+                return c;
+            });
+            
+            // NO. 1~52 (시즌 1 카드)만 필터링
+            const season1Cards = enrichedOwned.filter(c => c.no >= 1 && c.no <= 52);
             
             if (type === 'all_personas') {
                 let totalCardsProgress = 0;
                 season1Cards.forEach(c => {
                     totalCardsProgress += Math.min(c.level, 5); 
                 });
-                const isComplete = totalCardsProgress === 260; 
+                const isComplete = totalCardsProgress === 260; // 52종 * 5장
                 return { isComplete, progressText: `(${totalCardsProgress}/260)` };
             } 
             else if (type === 'all_hidden') {
@@ -924,7 +934,7 @@
                 seasonOneCharNames.forEach(char => {
                     if (checkChallengeComplete('char_personas', char).isComplete) completeCount++;
                 });
-                const isComplete = completeCount === 13;
+                const isComplete = completeCount === 13; // 시즌 1 캐릭터 13명
                 return { isComplete, progressText: `(${completeCount}/13)` };
             }
             else if (type === 'char_personas' && targetChar) {
@@ -933,7 +943,7 @@
                 charCards.forEach(c => {
                     charCardsProgress += Math.min(c.level, 5);
                 });
-                const isComplete = charCardsProgress === 20; 
+                const isComplete = charCardsProgress === 20; // 4종 * 5장
                 return { isComplete, progressText: `(${charCardsProgress}/20)` };
             }
             return { isComplete: false, progressText: '' };
