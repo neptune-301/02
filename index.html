@@ -683,7 +683,7 @@
             for (let charName of characterNames) {
                 if (DB[charName] && DB[charName][rank]) {
                     const appearType = DB[charName][rank].appear;
-                    if (appearType === 'CF' || appearType === gachaCode) {
+                    if (appearType === 'CF' || appearType === gachaCode || !appearType) {
                         validChars.push(charName);
                     }
                 }
@@ -726,7 +726,14 @@
                         for (let rate of creditRates) { if (rand <= rate.prob) { resultRank = rate.rank; break; } }
                         if (resultRank === 'S' || resultRank === 'R') gameState.creditPulls = 0;
                     }
-                    let card = generateCardData(resultRank, type);
+                    
+                    let card = null;
+                    let safetyNet = 100; 
+                    while(!card && safetyNet > 0) {
+                        card = generateCardData(resultRank, type);
+                        safetyNet--;
+                    }
+                    
                     if (card) {
                         addCardToInventory(card);
                         pulledCards.push(card);
@@ -747,7 +754,14 @@
                         for (let rate of flowerRates) { if (rand <= rate.prob) { resultRank = rate.rank; break; } }
                         if (resultRank === 'R') gameState.flowerPulls = 0;
                     }
-                    let card = generateCardData(resultRank, type);
+                    
+                    let card = null;
+                    let safetyNet = 100; 
+                    while(!card && safetyNet > 0) {
+                        card = generateCardData(resultRank, type);
+                        safetyNet--;
+                    }
+                    
                     if (card) {
                         addCardToInventory(card);
                         pulledCards.push(card);
@@ -803,8 +817,9 @@
         }
 
         function viewHidden(charName) {
+            if (!DB[charName] || !DB[charName].hidden_img) return;
             const hiddenImg = `./images/${DB[charName].hidden_img}`;
-            const hiddenDialogue = DB[charName].hidden_dialogue;
+            const hiddenDialogue = DB[charName].hidden_dialogue || "";
             document.getElementById('modal-img').src = hiddenImg;
             document.getElementById('modal-img').className = 'fs-image';
             document.getElementById('modal-dialogue').innerText = `"${hiddenDialogue}"`;
@@ -892,7 +907,7 @@
                 allOwned.forEach(c => {
                     totalCardsProgress += Math.min(c.level, 5); 
                 });
-                const isComplete = totalCardsProgress === 260;
+                const isComplete = totalCardsProgress === 260; // 52 * 5
                 return { isComplete, progressText: `(${totalCardsProgress}/260)` };
             } 
             else if (type === 'all_hidden') {
@@ -909,7 +924,7 @@
                 charCards.forEach(c => {
                     charCardsProgress += Math.min(c.level, 5);
                 });
-                const isComplete = charCardsProgress === 20;
+                const isComplete = charCardsProgress === 20; // 4 * 5
                 return { isComplete, progressText: `(${charCardsProgress}/20)` };
             }
             return { isComplete: false, progressText: '' };
