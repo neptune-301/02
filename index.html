@@ -451,18 +451,19 @@
                 }
                 row.push(currentWord);
 
-                if (row.length < 6) continue;
+                if (row.length < 8) continue;
 
                 const no = parseInt(row[0].trim(), 10);
                 const charName = row[1].trim();
-                const appearType = row[2].trim(); 
-                const rank = row[3].trim();
-                const personaName = row[4].trim();
-                const imgName = row[5].trim();
-                const dialogue = row[6] ? row[6].replace(/^"|"$/g, '').trim() : "";
+                const season = row[2].trim();
+                const appearType = row[3].trim(); 
+                const rank = row[4].trim();
+                const personaName = row[5].trim();
+                const imgName = row[6].trim();
+                const dialogue = row[7] ? row[7].replace(/^"|"$/g, '').trim() : "";
 
                 chars.add(charName);
-                if (no >= 1 && no <= 52) {
+                if (season === 'S1' && rank !== 'H') {
                     s1Chars.add(charName);
                 }
 
@@ -471,8 +472,11 @@
                 }
 
                 if (rank === 'H') {
-                    data[charName]['hidden_img'] = imgName;
-                    data[charName]['hidden_dialogue'] = dialogue;
+                    if (season === 'S1') {
+                        data[charName]['hidden_img'] = imgName;
+                        data[charName]['hidden_dialogue'] = dialogue;
+                        data[charName]['hidden_name'] = personaName;
+                    }
                 } else {
                     if (!data[charName][rank]) {
                         data[charName][rank] = [];
@@ -482,7 +486,8 @@
                         img: imgName,
                         dialogue: dialogue,
                         appear: appearType,
-                        no: no 
+                        no: no,
+                        season: season
                     });
                 }
             }
@@ -711,7 +716,8 @@
                 rank: rank, 
                 img: `./images/${selected.cardData.img}`, 
                 dialogue: selected.cardData.dialogue, 
-                no: selected.cardData.no 
+                no: selected.cardData.no,
+                season: selected.cardData.season
             };
         }
 
@@ -719,8 +725,8 @@
             if (!cardData) return;
             if(gameState.inventory[cardData.name]) {
                 gameState.inventory[cardData.name].level += 1;
-                // 구버전 세이브 호환성: 새로 획득할 때 no 값도 덮어쓰기
                 gameState.inventory[cardData.name].no = cardData.no; 
+                gameState.inventory[cardData.name].season = cardData.season;
             } else {
                 gameState.inventory[cardData.name] = { ...cardData, level: 1 };
             }
@@ -841,9 +847,11 @@
             if (!DB[charName] || !DB[charName].hidden_img) return;
             const hiddenImg = `./images/${DB[charName].hidden_img}`;
             const hiddenDialogue = DB[charName].hidden_dialogue || "";
+            const hiddenName = DB[charName].hidden_name || charName;
+            
             document.getElementById('modal-img').src = hiddenImg;
             document.getElementById('modal-img').className = 'fs-image';
-            document.getElementById('modal-dialogue').innerText = `"${hiddenDialogue}"`;
+            document.getElementById('modal-dialogue').innerText = `[${hiddenName}] "${hiddenDialogue}"`;
             document.getElementById('image-modal').style.display = 'flex';
         }
 
@@ -929,12 +937,13 @@
                     const matchedCard = cardsInRank.find(dbCard => dbCard.name === c.name);
                     if (matchedCard) {
                         c.no = matchedCard.no;
+                        c.season = matchedCard.season;
                     }
                 }
                 return c;
             });
             
-            const season1Cards = enrichedOwned.filter(c => c.no >= 1 && c.no <= 52);
+            const season1Cards = enrichedOwned.filter(c => c.season === 'S1');
             
             if (type === 'all_personas') {
                 let totalCardsProgress = 0;
