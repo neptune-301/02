@@ -451,15 +451,15 @@
                 }
                 row.push(currentWord);
 
-                if (row.length < 8) continue;
+                if (row.length < 7) continue;
 
                 const no = parseInt(row[0].trim(), 10);
                 const charName = row[1].trim();
                 const season = row[2].trim();
-                const appearType = row[3].trim(); 
-                const rank = row[4].trim();
-                const personaName = row[5].trim();
-                const imgName = row[6].trim();
+                const appearType = row[3] ? row[3].trim() : ''; 
+                const rank = row[4] ? row[4].trim() : '';
+                const personaName = row[5] ? row[5].trim() : '';
+                const imgName = row[6] ? row[6].trim() : '';
                 const dialogue = row[7] ? row[7].replace(/^"|"$/g, '').trim() : "";
 
                 chars.add(charName);
@@ -932,7 +932,7 @@
             const allOwned = Object.values(gameState.inventory);
             
             const enrichedOwned = allOwned.map(c => {
-                if (c.no === undefined && DB[c.char] && DB[c.char][c.rank]) {
+                if ((c.no === undefined || c.season === undefined) && DB[c.char] && DB[c.char][c.rank]) {
                     const cardsInRank = DB[c.char][c.rank];
                     const matchedCard = cardsInRank.find(dbCard => dbCard.name === c.name);
                     if (matchedCard) {
@@ -943,7 +943,7 @@
                 return c;
             });
             
-            const season1Cards = enrichedOwned.filter(c => c.season === 'S1');
+            const season1Cards = enrichedOwned.filter(c => c.season === 'S1' && c.rank !== 'H');
             
             if (type === 'all_personas') {
                 let totalCardsProgress = 0;
