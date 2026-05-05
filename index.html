@@ -382,6 +382,7 @@
     <script>
         let characterNames = [];
         let DB = {};
+        let seasonOneCharNames = [];
 
         const creditRates = [{ rank: 'R', prob: 0.01 }, { rank: 'S', prob: 0.10 }, { rank: 'A', prob: 0.40 }, { rank: 'N', prob: 1.00 }];
         const flowerRates = [{ rank: 'R', prob: 0.02 }, { rank: 'S', prob: 0.15 }, { rank: 'A', prob: 0.40 }, { rank: 'N', prob: 1.00 }];
@@ -428,6 +429,7 @@
             const lines = csvText.split('\n');
             const data = {};
             const chars = new Set();
+            const s1Chars = new Set();
 
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
@@ -451,6 +453,7 @@
 
                 if (row.length < 6) continue;
 
+                const no = parseInt(row[0].trim(), 10);
                 const charName = row[1].trim();
                 const appearType = row[2].trim(); 
                 const rank = row[3].trim();
@@ -459,6 +462,9 @@
                 const dialogue = row[6] ? row[6].replace(/^"|"$/g, '').trim() : "";
 
                 chars.add(charName);
+                if (no >= 1 && no <= 52) {
+                    s1Chars.add(charName);
+                }
 
                 if (!data[charName]) {
                     data[charName] = {};
@@ -472,11 +478,12 @@
                         name: personaName,
                         img: imgName,
                         dialogue: dialogue,
-                        appear: appearType 
+                        appear: appearType,
+                        no: no 
                     };
                 }
             }
-            return { db: data, charList: Array.from(chars) };
+            return { db: data, charList: Array.from(chars), s1List: Array.from(s1Chars) };
         }
 
         async function loadPersonaData() {
@@ -487,6 +494,7 @@
                 const parsed = parseCSV(text);
                 DB = parsed.db;
                 characterNames = parsed.charList;
+                seasonOneCharNames = parsed.s1List;
             } catch (error) {
                 console.error("페르소나.csv 파일을 불러오는 데 실패했습니다.", error);
             }
@@ -693,7 +701,7 @@
             
             const charName = validChars[Math.floor(Math.random() * validChars.length)];
             const dbChar = DB[charName][rank];
-            return { name: dbChar.name, char: charName, rank: rank, img: `./images/${dbChar.img}`, dialogue: dbChar.dialogue };
+            return { name: dbChar.name, char: charName, rank: rank, img: `./images/${dbChar.img}`, dialogue: dbChar.dialogue, no: dbChar.no };
         }
 
         function addCardToInventory(cardData) {
@@ -901,30 +909,31 @@
 
         function checkChallengeComplete(type, targetChar = null) {
             const allOwned = Object.values(gameState.inventory);
+            const season1Cards = allOwned.filter(c => c.no >= 1 && c.no <= 52);
             
             if (type === 'all_personas') {
                 let totalCardsProgress = 0;
-                allOwned.forEach(c => {
+                season1Cards.forEach(c => {
                     totalCardsProgress += Math.min(c.level, 5); 
                 });
-                const isComplete = totalCardsProgress === 260; // 52 * 5
+                const isComplete = totalCardsProgress === 260; 
                 return { isComplete, progressText: `(${totalCardsProgress}/260)` };
             } 
             else if (type === 'all_hidden') {
                 let completeCount = 0;
-                characterNames.forEach(char => {
+                seasonOneCharNames.forEach(char => {
                     if (checkChallengeComplete('char_personas', char).isComplete) completeCount++;
                 });
                 const isComplete = completeCount === 13;
                 return { isComplete, progressText: `(${completeCount}/13)` };
             }
             else if (type === 'char_personas' && targetChar) {
-                const charCards = allOwned.filter(c => c.char === targetChar);
+                const charCards = season1Cards.filter(c => c.char === targetChar);
                 let charCardsProgress = 0;
                 charCards.forEach(c => {
                     charCardsProgress += Math.min(c.level, 5);
                 });
-                const isComplete = charCardsProgress === 20; // 4 * 5
+                const isComplete = charCardsProgress === 20; 
                 return { isComplete, progressText: `(${charCardsProgress}/20)` };
             }
             return { isComplete: false, progressText: '' };
@@ -939,7 +948,7 @@
                 { title: "모든 캐릭터의 히든 일러스트 해금 완료", type: 'all_hidden' },
             ];
 
-            characterNames.forEach(char => {
+            seasonOneCharNames.forEach(char => {
                 challengeList.push({ title: `${char}의 모든 페르소나 카드 5장 이상 수집 완료`, type: 'char_personas', target: char });
             });
 
