@@ -474,13 +474,16 @@
                     data[charName]['hidden_img'] = imgName;
                     data[charName]['hidden_dialogue'] = dialogue;
                 } else {
-                    data[charName][rank] = {
+                    if (!data[charName][rank]) {
+                        data[charName][rank] = [];
+                    }
+                    data[charName][rank].push({
                         name: personaName,
                         img: imgName,
                         dialogue: dialogue,
                         appear: appearType,
                         no: no 
-                    };
+                    });
                 }
             }
             return { db: data, charList: Array.from(chars), s1List: Array.from(s1Chars) };
@@ -686,28 +689,38 @@
             if (characterNames.length === 0) return null;
             
             const gachaCode = gachaType === 'credit' ? 'C' : 'F';
-            let validChars = [];
+            let validCards = [];
             
             for (let charName of characterNames) {
                 if (DB[charName] && DB[charName][rank]) {
-                    const appearType = DB[charName][rank].appear;
-                    if (appearType === 'CF' || appearType === gachaCode || !appearType) {
-                        validChars.push(charName);
+                    const cardsInRank = DB[charName][rank];
+                    for (let c of cardsInRank) {
+                        if (c.appear === 'CF' || c.appear === gachaCode || !c.appear) {
+                            validCards.push({ charName: charName, cardData: c });
+                        }
                     }
                 }
             }
             
-            if (validChars.length === 0) return null;
+            if (validCards.length === 0) return null;
             
-            const charName = validChars[Math.floor(Math.random() * validChars.length)];
-            const dbChar = DB[charName][rank];
-            return { name: dbChar.name, char: charName, rank: rank, img: `./images/${dbChar.img}`, dialogue: dbChar.dialogue, no: dbChar.no };
+            const selected = validCards[Math.floor(Math.random() * validCards.length)];
+            return { 
+                name: selected.cardData.name, 
+                char: selected.charName, 
+                rank: rank, 
+                img: `./images/${selected.cardData.img}`, 
+                dialogue: selected.cardData.dialogue, 
+                no: selected.cardData.no 
+            };
         }
 
         function addCardToInventory(cardData) {
             if (!cardData) return;
             if(gameState.inventory[cardData.name]) {
                 gameState.inventory[cardData.name].level += 1;
+                // 구버전 세이브 호환성: 새로 획득할 때 no 값도 덮어쓰기
+                gameState.inventory[cardData.name].no = cardData.no; 
             } else {
                 gameState.inventory[cardData.name] = { ...cardData, level: 1 };
             }
@@ -910,15 +923,17 @@
         function checkChallengeComplete(type, targetChar = null) {
             const allOwned = Object.values(gameState.inventory);
             
-            // 기존 세이브 데이터에 no 값이 없는 경우 DB를 조회해 복원
             const enrichedOwned = allOwned.map(c => {
                 if (c.no === undefined && DB[c.char] && DB[c.char][c.rank]) {
-                    c.no = DB[c.char][c.rank].no;
+                    const cardsInRank = DB[c.char][c.rank];
+                    const matchedCard = cardsInRank.find(dbCard => dbCard.name === c.name);
+                    if (matchedCard) {
+                        c.no = matchedCard.no;
+                    }
                 }
                 return c;
             });
             
-            // NO. 1~52 (시즌 1 카드)만 필터링
             const season1Cards = enrichedOwned.filter(c => c.no >= 1 && c.no <= 52);
             
             if (type === 'all_personas') {
@@ -926,7 +941,7 @@
                 season1Cards.forEach(c => {
                     totalCardsProgress += Math.min(c.level, 5); 
                 });
-                const isComplete = totalCardsProgress === 260; // 52종 * 5장
+                const isComplete = totalCardsProgress === 260; 
                 return { isComplete, progressText: `(${totalCardsProgress}/260)` };
             } 
             else if (type === 'all_hidden') {
@@ -934,7 +949,7 @@
                 seasonOneCharNames.forEach(char => {
                     if (checkChallengeComplete('char_personas', char).isComplete) completeCount++;
                 });
-                const isComplete = completeCount === 13; // 시즌 1 캐릭터 13명
+                const isComplete = completeCount === 13;
                 return { isComplete, progressText: `(${completeCount}/13)` };
             }
             else if (type === 'char_personas' && targetChar) {
@@ -943,7 +958,7 @@
                 charCards.forEach(c => {
                     charCardsProgress += Math.min(c.level, 5);
                 });
-                const isComplete = charCardsProgress === 20; // 4종 * 5장
+                const isComplete = charCardsProgress === 20; 
                 return { isComplete, progressText: `(${charCardsProgress}/20)` };
             }
             return { isComplete: false, progressText: '' };
