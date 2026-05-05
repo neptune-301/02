@@ -141,11 +141,24 @@
         .rank-S { border: 5px solid #ff9800; box-shadow: 0 0 30px #ff9800; }
         .rank-R { border: 5px solid #e91e63; box-shadow: 0 0 50px #e91e63; }
 
+        .inventory-controls {
+            display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
+        }
+        
+        .sort-select {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 14px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
         .inventory-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
             gap: 15px;
-            margin-top: 20px;
         }
         .inv-card {
             background-color: var(--card-bg);
@@ -160,9 +173,26 @@
         .inv-card .rank { font-weight: bold; font-size: 14px; }
         .inv-card .name { font-size: 13px; margin-top: 5px; word-break: keep-all; }
         
+        .level-badge-container {
+            position: absolute; top: 8px; left: 8px; right: 8px;
+            display: flex; justify-content: space-between; align-items: flex-start;
+            pointer-events: none; z-index: 2;
+        }
+
+        .count-badge {
+            background-color: rgba(0,0,0,0.75); color: white;
+            padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;
+        }
+
         .level-badge {
-            position: absolute; top: 10px; left: 10px; background-color: rgba(0,0,0,0.8); color: white;
-            padding: 3px 8px; border-radius: 15px; font-size: 12px; font-weight: bold; z-index: 2;
+            background-color: rgba(0,0,0,0.75); color: white;
+            padding: 3px 6px; border-radius: 4px; font-size: 11px; font-weight: bold;
+        }
+        
+        .level-badge.max {
+            background-color: rgba(255, 215, 0, 0.9); color: #000;
+            box-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
+            border: 1px solid #ffca28;
         }
         
         .sys-box, .tuto-box, .challenge-box {
@@ -222,8 +252,16 @@
             font-weight: bold;
             color: var(--point-color);
             margin-bottom: 15px;
-            margin-top: 15px;
             display: block;
+        }
+        
+        .coming-soon {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-style: italic;
+            border-top: 1px dashed var(--border-color);
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -349,7 +387,21 @@
 
         <section id="inventory" class="page">
             <h2>🗂️ 인벤토리 & 앨범</h2>
-            <p>보유 중인 카드를 확인하고 관리합니다. 중복 획득 시 카드의 개수만큼 레벨(LV)이 상승하며 최대 5LV까지 표시됩니다.</p>
+            <p>보유 중인 카드를 확인하고 관리합니다.</p>
+            
+            <div class="inventory-controls">
+                <select id="sort-type" class="sort-select" onchange="renderInventory()">
+                    <option value="no">번호순 정렬</option>
+                    <option value="char">캐릭터별 정렬</option>
+                    <option value="rank">등급별 정렬</option>
+                    <option value="season">시즌별 정렬</option>
+                </select>
+                <select id="sort-order" class="sort-select" onchange="renderInventory()">
+                    <option value="asc">오름차순</option>
+                    <option value="desc">내림차순</option>
+                </select>
+            </div>
+
             <div class="inventory-grid" id="inv-grid"></div>
         </section>
 
@@ -844,7 +896,9 @@
             if(!card) return;
             const modalImg = document.getElementById('modal-img');
             modalImg.src = card.img;
-            document.getElementById('modal-dialogue').innerText = `[${card.season === 'S1' ? '시즌 1' : '시즌 2'}] "${card.dialogue}"`;
+            
+            const seasonText = card.season === 'S1' ? '시즌 1' : '시즌 2';
+            document.getElementById('modal-dialogue').innerText = `[${seasonText}] "${card.dialogue}"`;
             document.getElementById('image-modal').style.display = 'flex';
         }
 
@@ -912,27 +966,73 @@
             const grid = document.getElementById('inv-grid');
             grid.innerHTML = ''; 
 
-            const rankScore = { 'R': 4, 'S': 3, 'A': 2, 'N': 1 };
+            const sortType = document.getElementById('sort-type') ? document.getElementById('sort-type').value : 'no';
+            const sortOrder = document.getElementById('sort-order') ? document.getElementById('sort-order').value : 'asc';
+            const mult = sortOrder === 'asc' ? 1 : -1;
+            const rankOrder = { 'N': 1, 'A': 2, 'S': 3, 'R': 4 };
+
             const invenList = Object.values(gameState.inventory);
-            invenList.sort((a, b) => rankScore[b.rank] - rankScore[a.rank]);
+            
+            const enrichedList = invenList.map(c => {
+                if ((c.no === undefined || c.season === undefined) && DB[c.char] && DB[c.char][c.rank]) {
+                    const cardsInRank = DB[c.char][c.rank];
+                    const matchedCard = cardsInRank.find(dbCard => dbCard.name === c.name);
+                    if (matchedCard) {
+                        c.no = matchedCard.no;
+                        c.season = matchedCard.season;
+                    }
+                }
+                return c;
+            });
 
-            if(invenList.length === 0) { grid.innerHTML = "<p>보유한 카드가 없습니다.</p>"; return; }
+            enrichedList.sort((a, b) => {
+                const aNo = a.no || 0;
+                const bNo = b.no || 0;
 
-            invenList.forEach(card => {
+                if (sortType === 'no') {
+                    return (aNo - bNo) * mult;
+                } else if (sortType === 'char') {
+                    if (a.char < b.char) return -1 * mult;
+                    if (a.char > b.char) return 1 * mult;
+                    return aNo - bNo;
+                } else if (sortType === 'rank') {
+                    const aRank = rankOrder[a.rank] || 0;
+                    const bRank = rankOrder[b.rank] || 0;
+                    if (aRank !== bRank) {
+                        return (bRank - aRank) * mult; 
+                    }
+                    return aNo - bNo;
+                } else if (sortType === 'season') {
+                    const aSeason = a.season || '';
+                    const bSeason = b.season || '';
+                    if (aSeason < bSeason) return -1 * mult;
+                    if (aSeason > bSeason) return 1 * mult;
+                    return aNo - bNo;
+                }
+                return 0;
+            });
+
+            if(enrichedList.length === 0) { grid.innerHTML = "<p>보유한 카드가 없습니다.</p>"; return; }
+
+            enrichedList.forEach(card => {
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'inv-card';
                 
                 const imgClass = `rank-${card.rank}`;
-                const badgeClass = `level-badge`;
                 
                 const displayLevel = Math.min(card.level, 5);
-                const badgeText = card.level >= 5 ? `LV. 5 (MAX)` : `LV. ${displayLevel}`;
+                const isMax = displayLevel >= 5;
+                const lvClass = isMax ? 'level-badge max' : 'level-badge';
+                const lvText = isMax ? `LV. 5 (MAX)` : `LV. ${displayLevel}`;
 
                 let buttonsHtml = `<button class="btn btn-small" style="width:100%; margin: 5px 0 0 0;" onclick="openImageModal('${card.name}')">크게 보기 🔍</button>`;
                 buttonsHtml += `<button class="btn btn-small btn-danger" style="width:100%; margin: 5px 0 0 0;" onclick="discardCard('${card.name}')">카드 버리기</button>`;
 
                 cardDiv.innerHTML = `
-                    <div class="${badgeClass}">${badgeText}</div>
+                    <div class="level-badge-container">
+                        <span class="count-badge">보유: ${card.level}</span>
+                        <span class="${lvClass}">${lvText}</span>
+                    </div>
                     <img src="${card.img}" class="${imgClass}" alt="${card.name}">
                     <div class="rank" style="color:${getRankColor(card.rank)}">[${card.rank}]</div>
                     <div class="name">${card.name}</div>
@@ -1001,7 +1101,6 @@
 
             const s2Title = document.createElement('span');
             s2Title.className = 'season-title';
-            s2Title.style.marginTop = '30px';
             s2Title.innerText = '챌린지 - 시즌 2';
             container.appendChild(s2Title);
 
