@@ -449,13 +449,14 @@
                 }
                 row.push(currentWord);
 
-                if (row.length < 5) continue;
+                if (row.length < 6) continue;
 
                 const charName = row[1].trim();
-                const rank = row[2].trim();
-                const personaName = row[3].trim();
-                const imgName = row[4].trim();
-                const dialogue = row[5] ? row[5].replace(/^"|"$/g, '').trim() : "";
+                const appearType = row[2].trim(); 
+                const rank = row[3].trim();
+                const personaName = row[4].trim();
+                const imgName = row[5].trim();
+                const dialogue = row[6] ? row[6].replace(/^"|"$/g, '').trim() : "";
 
                 chars.add(charName);
 
@@ -470,7 +471,8 @@
                     data[charName][rank] = {
                         name: personaName,
                         img: imgName,
-                        dialogue: dialogue
+                        dialogue: dialogue,
+                        appear: appearType 
                     };
                 }
             }
@@ -672,9 +674,24 @@
 
         function getRankColor(rank) { return { 'N': '#b0bec5', 'A': '#4caf50', 'S': '#ff9800', 'R': '#e91e63' }[rank]; }
 
-        function generateCardData(rank) {
+        function generateCardData(rank, gachaType) {
             if (characterNames.length === 0) return null;
-            const charName = characterNames[Math.floor(Math.random() * characterNames.length)];
+            
+            const gachaCode = gachaType === 'credit' ? 'C' : 'F';
+            let validChars = [];
+            
+            for (let charName of characterNames) {
+                if (DB[charName] && DB[charName][rank]) {
+                    const appearType = DB[charName][rank].appear;
+                    if (appearType === 'CF' || appearType === gachaCode) {
+                        validChars.push(charName);
+                    }
+                }
+            }
+            
+            if (validChars.length === 0) return null;
+            
+            const charName = validChars[Math.floor(Math.random() * validChars.length)];
             const dbChar = DB[charName][rank];
             return { name: dbChar.name, char: charName, rank: rank, img: `./images/${dbChar.img}`, dialogue: dbChar.dialogue };
         }
@@ -709,7 +726,7 @@
                         for (let rate of creditRates) { if (rand <= rate.prob) { resultRank = rate.rank; break; } }
                         if (resultRank === 'S' || resultRank === 'R') gameState.creditPulls = 0;
                     }
-                    let card = generateCardData(resultRank);
+                    let card = generateCardData(resultRank, type);
                     if (card) {
                         addCardToInventory(card);
                         pulledCards.push(card);
@@ -730,7 +747,7 @@
                         for (let rate of flowerRates) { if (rand <= rate.prob) { resultRank = rate.rank; break; } }
                         if (resultRank === 'R') gameState.flowerPulls = 0;
                     }
-                    let card = generateCardData(resultRank);
+                    let card = generateCardData(resultRank, type);
                     if (card) {
                         addCardToInventory(card);
                         pulledCards.push(card);
