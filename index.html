@@ -222,16 +222,8 @@
             font-weight: bold;
             color: var(--point-color);
             margin-bottom: 15px;
+            margin-top: 15px;
             display: block;
-        }
-        
-        .coming-soon {
-            text-align: center;
-            padding: 30px;
-            color: #888;
-            font-style: italic;
-            border-top: 1px dashed var(--border-color);
-            margin-top: 20px;
         }
     </style>
 </head>
@@ -290,7 +282,9 @@
             
             <div class="notice-box">
                 <div class="notice-title">[필독] 엠바고 및 에셋 업로드 관련 주의사항</div>
-                본 콘텐츠는 에셋 감상이 주 목적인 시뮬레이터입니다. 원활한 즐거움을 위해 <b>2026년 5월 7일</b>까지 일주일간 엠바고 기간을 가집니다.<br><br>
+                본 콘텐츠는 에셋 감상이 주 목적인 시뮬레이터입니다. 원활한 즐거움을 위해 아래 기간 동안 엠바고를 가집니다.<br><br>
+                - <b>시즌 1 엠바고:</b> 2026년 5월 7일까지<br>
+                - <b>시즌 2 엠바고:</b> 2026년 5월 14일까지<br><br>
                 해당 기간 동안에는 SNS 등에 원본 에셋(일러스트) 캡처 및 재업로드를 지양해 주시길 부탁드립니다. 불가피하게 업로드하실 경우, 크롭하여 이미지의 일부분만 올려 주시면 감사하겠습니다.
             </div>
             
@@ -316,14 +310,14 @@
 
             <div class="tuto-box">
                 <h3>🃏 페르소나 카드 육성과 환급</h3>
-                <p>🔹 <strong>레벨업:</strong> 이미 보유하고 있는 페르소나 카드를 중복으로 획득하면 자동으로 카드의 <b>레벨(LV)이 상승</b>합니다.</p>
-                <p>🔹 <strong>카드 버리기(환급):</strong> 인벤토리에서 불필요한 카드는 분해할 수 있습니다. 중복 카드가 여러 장 겹쳐져 있는 상태라면 버릴 개수를 선택해 한 번에 버릴 수 있으며, 등급에 따라 크레딧(N 10C / A 50C / S 200C / R 1,000C)을 돌려받습니다.</p>
+                <p>🔹 <strong>레벨업(LV):</strong> 각 페르소나 카드는 중복 획득 개수에 따라 1장마다 1LV이 부여됩니다. 같은 카드의 보유 장수가 늘어날수록 레벨이 오르며, <b>6장부터는 5LV(MAX)로 고정</b>되어 표기됩니다.</p>
+                <p>🔹 <strong>카드 버리기(환급):</strong> 인벤토리에서 불필요한 카드는 분해할 수 있습니다. 카드가 여러 개 겹쳐져 있는 경우 버릴 개수를 선택해 한 번에 처리할 수 있으며, 등급에 따라 크레딧(N 10C / A 50C / S 200C / R 1,000C)을 돌려받습니다.</p>
             </div>
             
             <div class="tuto-box">
                 <h3>🏆 챌린지 (도전과제)</h3>
-                <p>🔹 <strong>히든 일러스트:</strong> 특정 캐릭터의 모든 등급 페르소나 카드를 <b>5LV</b>까지 달성하면, 챌린지가 완료되며 <b>해당 캐릭터의 히든 일러스트가 해금</b>됩니다!</p>
-                <p>모든 페르소나 5LV 달성 및 히든 일러스트 수집을 목표로 달려보세요. 진행 상황은 <b>[챌린지]</b> 탭에서 실시간으로 확인할 수 있습니다.</p>
+                <p>🔹 <strong>히든 일러스트:</strong> 각 시즌별로 특정 캐릭터의 모든 페르소나 카드를 수집하여 <b>5LV</b>에 도달하게 만들면, 챌린지가 완료되며 <b>해당 캐릭터의 고유 히든 일러스트가 해금</b>됩니다!</p>
+                <p>시즌에 따른 모든 페르소나 5LV 달성 및 일러스트 수집을 목표로 달려보세요. 진행 상황은 <b>[챌린지]</b> 탭에서 실시간으로 확인할 수 있습니다.</p>
             </div>
         </section>
 
@@ -355,7 +349,7 @@
 
         <section id="inventory" class="page">
             <h2>🗂️ 인벤토리 & 앨범</h2>
-            <p>보유 중인 카드를 확인하고 관리합니다. 중복 카드는 자동으로 겹쳐집니다.</p>
+            <p>보유 중인 카드를 확인하고 관리합니다. 중복 획득 시 카드의 개수만큼 레벨(LV)이 상승하며 최대 5LV까지 표시됩니다.</p>
             <div class="inventory-grid" id="inv-grid"></div>
         </section>
 
@@ -382,7 +376,8 @@
     <script>
         let characterNames = [];
         let DB = {};
-        let seasonOneCharNames = [];
+        let s1CharsList = [];
+        let s2CharsList = [];
 
         const creditRates = [{ rank: 'R', prob: 0.01 }, { rank: 'S', prob: 0.10 }, { rank: 'A', prob: 0.40 }, { rank: 'N', prob: 1.00 }];
         const flowerRates = [{ rank: 'R', prob: 0.02 }, { rank: 'S', prob: 0.15 }, { rank: 'A', prob: 0.40 }, { rank: 'N', prob: 1.00 }];
@@ -429,7 +424,8 @@
             const lines = csvText.split('\n');
             const data = {};
             const chars = new Set();
-            const s1Chars = new Set();
+            const s1 = new Set();
+            const s2 = new Set();
 
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
@@ -462,9 +458,10 @@
                 const imgName = row[6] ? row[6].trim() : '';
                 const dialogue = row[7] ? row[7].replace(/^"|"$/g, '').trim() : "";
 
-                chars.add(charName);
-                if (season === 'S1' && rank !== 'H') {
-                    s1Chars.add(charName);
+                if (rank !== 'H') {
+                    chars.add(charName);
+                    if (season === 'S1') s1.add(charName);
+                    if (season === 'S2') s2.add(charName);
                 }
 
                 if (!data[charName]) {
@@ -472,11 +469,14 @@
                 }
 
                 if (rank === 'H') {
-                    if (season === 'S1') {
-                        data[charName]['hidden_img'] = imgName;
-                        data[charName]['hidden_dialogue'] = dialogue;
-                        data[charName]['hidden_name'] = personaName;
+                    if (!data[charName]['hidden']) {
+                        data[charName]['hidden'] = {};
                     }
+                    data[charName]['hidden'][season] = {
+                        img: imgName,
+                        dialogue: dialogue,
+                        name: personaName
+                    };
                 } else {
                     if (!data[charName][rank]) {
                         data[charName][rank] = [];
@@ -491,7 +491,7 @@
                     });
                 }
             }
-            return { db: data, charList: Array.from(chars), s1List: Array.from(s1Chars) };
+            return { db: data, charList: Array.from(chars), s1List: Array.from(s1), s2List: Array.from(s2) };
         }
 
         async function loadPersonaData() {
@@ -502,7 +502,8 @@
                 const parsed = parseCSV(text);
                 DB = parsed.db;
                 characterNames = parsed.charList;
-                seasonOneCharNames = parsed.s1List;
+                s1CharsList = parsed.s1List;
+                s2CharsList = parsed.s2List;
             } catch (error) {
                 console.error("페르소나.csv 파일을 불러오는 데 실패했습니다.", error);
             }
@@ -671,8 +672,12 @@
         function cheatCredit() { 
             const pwd = prompt("관리자 코드를 입력하세요:");
             if (pwd === "C0v3_Pr0t0c0l_#829!") {
-                gameState.credits += 5000; 
-                gameState.flowers += 200; 
+                const addCredits = parseInt(prompt("지급할 크레딧 양을 입력하세요:", "5000"), 10);
+                const addFlowers = parseInt(prompt("지급할 플라워 양을 입력하세요:", "200"), 10);
+                
+                if (!isNaN(addCredits)) gameState.credits += addCredits;
+                if (!isNaN(addFlowers)) gameState.flowers += addFlowers;
+                
                 updateUI(); 
                 autoSave(); 
                 alert("테스트 재화가 지급되었습니다.");
@@ -700,7 +705,7 @@
                 if (DB[charName] && DB[charName][rank]) {
                     const cardsInRank = DB[charName][rank];
                     for (let c of cardsInRank) {
-                        if (c.appear === 'CF' || c.appear === gachaCode || !c.appear) {
+                        if (c.appear === 'CF' || c.appear === gachaCode) {
                             validCards.push({ charName: charName, cardData: c });
                         }
                     }
@@ -839,15 +844,22 @@
             if(!card) return;
             const modalImg = document.getElementById('modal-img');
             modalImg.src = card.img;
-            document.getElementById('modal-dialogue').innerText = `"${card.dialogue}"`;
+            document.getElementById('modal-dialogue').innerText = `[${card.season === 'S1' ? '시즌 1' : '시즌 2'}] "${card.dialogue}"`;
             document.getElementById('image-modal').style.display = 'flex';
         }
 
-        function viewHidden(charName) {
-            if (!DB[charName] || !DB[charName].hidden_img) return;
-            const hiddenImg = `./images/${DB[charName].hidden_img}`;
-            const hiddenDialogue = DB[charName].hidden_dialogue || "";
-            const hiddenName = DB[charName].hidden_name || charName;
+        function viewHidden(charName, season) {
+            if (season === 'S2') {
+                alert("시즌 2 히든 일러스트를 준비 중입니다. 조금만 기다려 주세요!");
+                return;
+            }
+
+            if (!DB[charName] || !DB[charName]['hidden'] || !DB[charName]['hidden'][season]) return;
+            const hiddenData = DB[charName]['hidden'][season];
+            
+            const hiddenImg = `./images/${hiddenData.img}`;
+            const hiddenDialogue = hiddenData.dialogue || "";
+            const hiddenName = hiddenData.name || charName;
             
             document.getElementById('modal-img').src = hiddenImg;
             document.getElementById('modal-img').className = 'fs-image';
@@ -912,7 +924,9 @@
                 
                 const imgClass = `rank-${card.rank}`;
                 const badgeClass = `level-badge`;
-                const badgeText = `보유: ${card.level}`;
+                
+                const displayLevel = Math.min(card.level, 5);
+                const badgeText = card.level >= 5 ? `LV. 5 (MAX)` : `LV. ${displayLevel}`;
 
                 let buttonsHtml = `<button class="btn btn-small" style="width:100%; margin: 5px 0 0 0;" onclick="openImageModal('${card.name}')">크게 보기 🔍</button>`;
                 buttonsHtml += `<button class="btn btn-small btn-danger" style="width:100%; margin: 5px 0 0 0;" onclick="discardCard('${card.name}')">카드 버리기</button>`;
@@ -928,7 +942,7 @@
             });
         }
 
-        function checkChallengeComplete(type, targetChar = null) {
+        function checkChallengeComplete(season, targetChar) {
             const allOwned = Object.values(gameState.inventory);
             
             const enrichedOwned = allOwned.map(c => {
@@ -943,70 +957,70 @@
                 return c;
             });
             
-            const season1Cards = enrichedOwned.filter(c => c.season === 'S1' && c.rank !== 'H');
+            const seasonCards = enrichedOwned.filter(c => c.season === season && c.rank !== 'H');
+            const charCards = seasonCards.filter(c => c.char === targetChar);
             
-            if (type === 'all_personas') {
-                let totalCardsProgress = 0;
-                season1Cards.forEach(c => {
-                    totalCardsProgress += Math.min(c.level, 5); 
-                });
-                const isComplete = totalCardsProgress === 260; 
-                return { isComplete, progressText: `(${totalCardsProgress}/260)` };
-            } 
-            else if (type === 'all_hidden') {
-                let completeCount = 0;
-                seasonOneCharNames.forEach(char => {
-                    if (checkChallengeComplete('char_personas', char).isComplete) completeCount++;
-                });
-                const isComplete = completeCount === 13;
-                return { isComplete, progressText: `(${completeCount}/13)` };
-            }
-            else if (type === 'char_personas' && targetChar) {
-                const charCards = season1Cards.filter(c => c.char === targetChar);
-                let charCardsProgress = 0;
-                charCards.forEach(c => {
-                    charCardsProgress += Math.min(c.level, 5);
-                });
-                const isComplete = charCardsProgress === 20; 
-                return { isComplete, progressText: `(${charCardsProgress}/20)` };
-            }
-            return { isComplete: false, progressText: '' };
+            let charCardsProgress = 0;
+            charCards.forEach(c => {
+                charCardsProgress += Math.min(c.level, 5);
+            });
+            
+            let requiredCards = 0;
+            if (season === 'S1') requiredCards = 20; 
+            if (season === 'S2') requiredCards = 10; 
+
+            const isComplete = charCardsProgress >= requiredCards; 
+            return { isComplete, progressText: `(${charCardsProgress}/${requiredCards})` };
         }
 
         function renderChallenges() {
             const container = document.getElementById('challenge-list-container');
-            container.innerHTML = '<span class="season-title">챌린지 - 시즌 1</span>';
+            container.innerHTML = '';
 
-            const challengeList = [
-                { title: "모든 캐릭터의 모든 페르소나 5장 이상 수집 완료", type: 'all_personas' },
-                { title: "모든 캐릭터의 히든 일러스트 해금 완료", type: 'all_hidden' },
-            ];
+            const s1Title = document.createElement('span');
+            s1Title.className = 'season-title';
+            s1Title.innerText = '챌린지 - 시즌 1';
+            container.appendChild(s1Title);
 
-            seasonOneCharNames.forEach(char => {
-                challengeList.push({ title: `${char}의 모든 페르소나 카드 5장 이상 수집 완료`, type: 'char_personas', target: char });
-            });
-
-            challengeList.forEach(ch => {
-                const result = checkChallengeComplete(ch.type, ch.target);
+            s1CharsList.forEach(char => {
+                const result = checkChallengeComplete('S1', char);
                 const statusHtml = result.isComplete 
                     ? `<span class="status-badge status-complete">완료</span>` 
                     : `<span class="status-badge status-incomplete">미완료</span>`;
 
                 let extraBtn = '';
-                if (ch.type === 'char_personas' && result.isComplete) {
-                    extraBtn = `<button class="btn btn-small btn-flower" style="margin:0 10px;" onclick="viewHidden('${ch.target}')">히든 보기 🔓</button>`;
+                if (result.isComplete) {
+                    extraBtn = `<button class="btn btn-small btn-flower" style="margin:0 10px;" onclick="viewHidden('${char}', 'S1')">히든 보기 🔓</button>`;
                 }
 
                 const chDiv = document.createElement('div');
                 chDiv.className = 'challenge-item';
-                chDiv.innerHTML = `<span>${ch.title}</span> <div style="display:flex; align-items:center;"><span class="progress-text">${result.progressText}</span>${extraBtn}${statusHtml}</div>`;
+                chDiv.innerHTML = `<span>시즌 1 ${char}의 모든 페르소나 카드가 5LV일 것</span> <div style="display:flex; align-items:center;"><span class="progress-text">${result.progressText}</span>${extraBtn}${statusHtml}</div>`;
                 container.appendChild(chDiv);
             });
 
-            const s2Div = document.createElement('div');
-            s2Div.className = 'coming-soon';
-            s2Div.innerText = "챌린지 - 시즌 2 (Coming Soon)";
-            container.appendChild(s2Div);
+            const s2Title = document.createElement('span');
+            s2Title.className = 'season-title';
+            s2Title.style.marginTop = '30px';
+            s2Title.innerText = '챌린지 - 시즌 2';
+            container.appendChild(s2Title);
+
+            s2CharsList.forEach(char => {
+                const result = checkChallengeComplete('S2', char);
+                const statusHtml = result.isComplete 
+                    ? `<span class="status-badge status-complete">완료</span>` 
+                    : `<span class="status-badge status-incomplete">미완료</span>`;
+
+                let extraBtn = '';
+                if (result.isComplete) {
+                    extraBtn = `<button class="btn btn-small btn-flower" style="margin:0 10px;" onclick="viewHidden('${char}', 'S2')">히든 보기 🔓</button>`;
+                }
+
+                const chDiv = document.createElement('div');
+                chDiv.className = 'challenge-item';
+                chDiv.innerHTML = `<span>시즌 2 ${char}의 모든 페르소나 카드가 5LV일 것</span> <div style="display:flex; align-items:center;"><span class="progress-text">${result.progressText}</span>${extraBtn}${statusHtml}</div>`;
+                container.appendChild(chDiv);
+            });
         }
 
         init();
