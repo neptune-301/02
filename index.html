@@ -252,6 +252,7 @@
             font-weight: bold;
             color: var(--point-color);
             margin-bottom: 15px;
+            margin-top: 15px;
             display: block;
         }
         
@@ -1065,11 +1066,19 @@
                 charCardsProgress += Math.min(c.level, 5);
             });
             
-            let requiredCards = 0;
-            if (season === 'S1') requiredCards = 20; 
-            if (season === 'S2') requiredCards = 10; 
+            let dbCardsCount = 0;
+            if (DB[targetChar]) {
+                for (let rank in DB[targetChar]) {
+                    if (rank !== 'H' && rank !== 'hidden') {
+                        for (let c of DB[targetChar][rank]) {
+                            if (c.season === season) dbCardsCount++;
+                        }
+                    }
+                }
+            }
+            let requiredCards = dbCardsCount * 5;
 
-            const isComplete = charCardsProgress >= requiredCards; 
+            const isComplete = requiredCards > 0 && charCardsProgress >= requiredCards; 
             return { isComplete, progressText: `(${charCardsProgress}/${requiredCards})` };
         }
 
@@ -1101,6 +1110,7 @@
 
             const s2Title = document.createElement('span');
             s2Title.className = 'season-title';
+            s2Title.style.marginTop = '30px';
             s2Title.innerText = '챌린지 - 시즌 2';
             container.appendChild(s2Title);
 
