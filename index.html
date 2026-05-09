@@ -408,6 +408,13 @@
             </div>
 
             <div class="tuto-box">
+                <h3>🎯 시즌 픽업 & 토탈 픽업</h3>
+                <p>🔹 <strong>토탈 픽업:</strong> 모든 시즌의 카드가 골고루 등장하는 기본 픽업입니다.</p>
+                <p>🔹 <strong>시즌 픽업:</strong> 특정 시즌에 해당하는 카드만 등장하여 원하는 카드를 저격하기 좋습니다. 단, <b>시즌 픽업은 토탈 픽업보다 재화가 2배 소모</b>됩니다.</p>
+                <p>🔹 <strong>천장 시스템:</strong> 픽업마다 천장 횟수(크레딧 100회 / 플라워 50회)가 <b>각각 독립적으로 집계</b>됩니다. (토탈 따로, 시즌 1 따로, 시즌 2 따로 집계)</p>
+            </div>
+
+            <div class="tuto-box">
                 <h3>🃏 페르소나 카드 육성과 환급</h3>
                 <p>🔹 <strong>레벨업(LV):</strong> 각 페르소나 카드는 중복 획득 개수에 따라 1장마다 1LV이 부여됩니다. 같은 카드의 보유 장수가 늘어날수록 레벨이 오르며, <b>6장부터는 5LV(MAX)로 고정</b>되어 표기됩니다.</p>
                 <p>🔹 <strong>카드 버리기(환급):</strong> 인벤토리에서 불필요한 카드는 분해할 수 있습니다. 카드가 여러 개 겹쳐져 있는 경우 버릴 개수를 선택해 한 번에 처리할 수 있으며, 등급에 따라 크레딧(N 10C / A 50C / S 200C / R 1,000C)을 돌려받습니다.</p>
@@ -484,8 +491,8 @@
             flowers: 300,
             inventory: {},
             theme: 'light',
-            creditPulls: 0,
-            flowerPulls: 0,
+            creditPulls: {},
+            flowerPulls: {},
             lastChargeTime: Date.now(),
             usedCoupons: [] 
         };
@@ -504,6 +511,8 @@
                 gameState = { ...defaultState, ...parsed };
                 if (!gameState.usedCoupons) gameState.usedCoupons = [];
                 if (!gameState.lastChargeTime) gameState.lastChargeTime = Date.now();
+                if (typeof gameState.creditPulls === 'number') gameState.creditPulls = { total: gameState.creditPulls };
+                if (typeof gameState.flowerPulls === 'number') gameState.flowerPulls = { total: gameState.flowerPulls };
             } else {
                 gameState.lastChargeTime = Date.now();
             }
@@ -666,6 +675,8 @@
                     gameState = { ...defaultState, ...loadedData };
                     if (!gameState.usedCoupons) gameState.usedCoupons = [];
                     if (!gameState.lastChargeTime) gameState.lastChargeTime = Date.now();
+                    if (typeof gameState.creditPulls === 'number') gameState.creditPulls = { total: gameState.creditPulls };
+                    if (typeof gameState.flowerPulls === 'number') gameState.flowerPulls = { total: gameState.flowerPulls };
                     autoSave(); applyTheme(); updateUI();
                     if (document.getElementById('inventory').classList.contains('active')) renderInventory();
                     if (document.getElementById('challenge').classList.contains('active')) renderChallenges();
@@ -690,14 +701,18 @@
         function updateUI() {
             document.getElementById('credit-val').innerText = gameState.credits.toLocaleString();
             document.getElementById('flower-val').innerText = gameState.flowers.toLocaleString();
+            
+            const cPulls = gameState.creditPulls[currentBanner] || 0;
+            const fPulls = gameState.flowerPulls[currentBanner] || 0;
+            
             const cpText = document.getElementById('credit-pity-text');
-            if(cpText) cpText.innerText = 100 - gameState.creditPulls;
+            if(cpText) cpText.innerText = 100 - cPulls;
             const cpFill = document.getElementById('credit-pity-fill');
-            if(cpFill) cpFill.style.width = `${(gameState.creditPulls / 100) * 100}%`;
+            if(cpFill) cpFill.style.width = `${(cPulls / 100) * 100}%`;
             const fpText = document.getElementById('flower-pity-text');
-            if(fpText) fpText.innerText = 50 - gameState.flowerPulls;
+            if(fpText) fpText.innerText = 50 - fPulls;
             const fpFill = document.getElementById('flower-pity-fill');
-            if(fpFill) fpFill.style.width = `${(gameState.flowerPulls / 50) * 100}%`;
+            if(fpFill) fpFill.style.width = `${(fPulls / 50) * 100}%`;
         }
 
         function toggleTheme() { gameState.theme = gameState.theme === 'light' ? 'dark' : 'light'; applyTheme(); autoSave(); }
@@ -745,18 +760,20 @@
             const isTotal = currentBanner === 'total';
             const costMult = isTotal ? 1 : 2;
             const titleText = isTotal ? '토탈 픽업' : `시즌 ${currentBanner.replace('S', '')} 픽업`;
-            const costNotice = isTotal ? '' : ' (시즌 픽업은 토탈 픽업보다 재화가 2배 소모됩니다.)';
+            
+            const cPulls = gameState.creditPulls[currentBanner] || 0;
+            const fPulls = gameState.flowerPulls[currentBanner] || 0;
             
             detailsContainer.innerHTML = `
                 <div class="sys-box" style="margin-bottom:0;">
-                    <h3>${titleText}${costNotice}</h3>
+                    <h3>${titleText}</h3>
                     <div class="gacha-details">
                         <div>
                             <h4 style="color: var(--point-color); margin-top:0;">크레딧 픽업</h4>
                             <p style="font-size: 14px;">확률: N 60% / A 30% / S 9% / R 1%<br>비용: 1회 ${100 * costMult}C / 10회 ${1000 * costMult}C</p>
                             <div class="pity-container">
-                                <strong>천장까지 남은 횟수: <span id="credit-pity-text">${100 - gameState.creditPulls}</span>회</strong>
-                                <div class="pity-bar-bg"><div class="pity-bar-fill" id="credit-pity-fill" style="width: ${(gameState.creditPulls / 100) * 100}%"></div></div>
+                                <strong>천장까지 남은 횟수: <span id="credit-pity-text">${100 - cPulls}</span>회</strong>
+                                <div class="pity-bar-bg"><div class="pity-bar-fill" id="credit-pity-fill" style="width: ${(cPulls / 100) * 100}%"></div></div>
                             </div>
                             <button class="btn" onclick="pullGacha('credit', 1, '${currentBanner}')">1회 픽업</button>
                             <button class="btn" onclick="pullGacha('credit', 10, '${currentBanner}')">10연속 픽업</button>
@@ -765,8 +782,8 @@
                             <h4 style="color: #e91e63; margin-top:0;">플라워 픽업</h4>
                             <p style="font-size: 14px;">확률: N 60% / A 25% / S 13% / R 2%<br>비용: 1회 ${20 * costMult}F / 10회 ${200 * costMult}F</p>
                             <div class="pity-container flower-pity">
-                                <strong>천장까지 남은 횟수: <span id="flower-pity-text">${50 - gameState.flowerPulls}</span>회</strong>
-                                <div class="pity-bar-bg"><div class="pity-bar-fill" id="flower-pity-fill" style="width: ${(gameState.flowerPulls / 50) * 100}%"></div></div>
+                                <strong>천장까지 남은 횟수: <span id="flower-pity-text">${50 - fPulls}</span>회</strong>
+                                <div class="pity-bar-bg"><div class="pity-bar-fill" id="flower-pity-fill" style="width: ${(fPulls / 50) * 100}%"></div></div>
                             </div>
                             <button class="btn btn-flower" onclick="pullGacha('flower', 1, '${currentBanner}')">1회 픽업</button>
                             <button class="btn btn-flower" onclick="pullGacha('flower', 10, '${currentBanner}')">10연속 픽업</button>
@@ -923,13 +940,14 @@
                 gameState.credits -= cost;
 
                 for(let i=0; i<times; i++) {
-                    gameState.creditPulls++;
+                    if (!gameState.creditPulls[bannerType]) gameState.creditPulls[bannerType] = 0;
+                    gameState.creditPulls[bannerType]++;
                     let resultRank = 'N';
-                    if (gameState.creditPulls >= 100) { resultRank = Math.random() < 0.1 ? 'R' : 'S'; gameState.creditPulls = 0; } 
+                    if (gameState.creditPulls[bannerType] >= 100) { resultRank = Math.random() < 0.1 ? 'R' : 'S'; gameState.creditPulls[bannerType] = 0; } 
                     else {
                         let rand = Math.random();
                         for (let rate of creditRates) { if (rand <= rate.prob) { resultRank = rate.rank; break; } }
-                        if (resultRank === 'S' || resultRank === 'R') gameState.creditPulls = 0;
+                        if (resultRank === 'S' || resultRank === 'R') gameState.creditPulls[bannerType] = 0;
                     }
                     
                     let card = null;
@@ -951,13 +969,14 @@
                 gameState.flowers -= cost;
 
                 for(let i=0; i<times; i++) {
-                    gameState.flowerPulls++;
+                    if (!gameState.flowerPulls[bannerType]) gameState.flowerPulls[bannerType] = 0;
+                    gameState.flowerPulls[bannerType]++;
                     let resultRank = 'N';
-                    if (gameState.flowerPulls >= 50) { resultRank = 'R'; gameState.flowerPulls = 0; } 
+                    if (gameState.flowerPulls[bannerType] >= 50) { resultRank = 'R'; gameState.flowerPulls[bannerType] = 0; } 
                     else {
                         let rand = Math.random();
                         for (let rate of flowerRates) { if (rand <= rate.prob) { resultRank = rate.rank; break; } }
-                        if (resultRank === 'R') gameState.flowerPulls = 0;
+                        if (resultRank === 'R') gameState.flowerPulls[bannerType] = 0;
                     }
                     
                     let card = null;
