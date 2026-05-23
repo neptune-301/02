@@ -27,3 +27,4 @@ happytoday / 1100F
 welcomenewface / 1900F
 rainycoveday / 1100F
 hialkali / 1500F
+marryweather / 9000C
