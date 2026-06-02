@@ -30,3 +30,4 @@ hialkali / 1500F
 marryweather / 9000C
 fivedays / 3000F
 helloacid / 1100F
+hotsummer / 2200F
